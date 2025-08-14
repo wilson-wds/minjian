@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貸款客戶管理系統</title>
+    <!-- 引入 Tailwind CSS 以進行快速美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 使用 Inter 字體 */
+        body {
+            font-family: 'Inter', '微軟正黑體', sans-serif;
+        }
+        /* 美化捲軸 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* 視圖切換效果 */
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+        /* 分頁按鈕樣式 */
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            border-color: #3B82F6; /* blue-500 */
+            color: #3B82F6;
+            background-color: #EFF6FF; /* blue-50 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+        <!-- 頁面標題 -->
+        <header class="mb-8 text-center">
+            <h1 id="main-title" class="text-3xl font-bold text-gray-900">貸款客戶管理系統</h1>
+            <p id="header-subtitle" class="text-gray-500 mt-2">客戶列表</p>
+        </header>
+
+        <!-- 分頁導覽 -->
+        <div class="mb-6 border-b border-gray-200">
+            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                <button id="customerTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700 active">
+                    客戶管理
+                </button>
+                <button id="loanTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    貸款資料
+                </button>
+                <button id="settingsTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    設定
+                </button>
+            </nav>
+        </div>
+
+        <!-- 主內容容器 -->
+        <main>
+            <!-- 客戶管理分頁內容 -->
+            <div id="customerTabContent" class="view active">
+                <!-- 1. 客戶列表視圖 -->
+                <div id="customerListView" class="view active">
+                    <div class="flex justify-end mb-6">
+                        <button id="showCustomerFormBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition duration-200 shadow-md">
+                            ＋ 新增客戶資料
+                        </button>
+                    </div>
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">姓名</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">手機</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">申貸金額</th>
+                                        <th scope="col" class="relative px-6 py-3"><span class="sr-only">操作</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customerTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr id="no-customer-row"><td colspan="4" class="px-6 py-12 text-center text-gray-500">目前沒有任何客戶資料</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- 2. 客戶表單視圖 -->
+                <div id="customerFormView" class="view">
+                    <form id="customerForm" class="space-y-8 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <!-- 表單內容和之前相同 -->
+                        <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">基本資料</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="name" class="block text-sm font-medium text-gray-600 mb-1">姓名</label><input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入客戶姓名" required></div><div><label for="identity" class="block text-sm font-medium text-gray-600 mb-1">身分證</label><input type="text" id="identity" name="identity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入身分證字號"></div><div><label for="dob" class="block text-sm font-medium text-gray-600 mb-1">生日</label><input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div><div><label for="mobile" class="block text-sm font-medium text-gray-600 mb-1">手機</label><input type="tel" id="mobile" name="mobile" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 0988328785"></div><div><label for="home_phone" class="block text-sm font-medium text-gray-600 mb-1">住家電話</label><input type="tel" id="home_phone" name="home_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 04-xxxxxxx"></div><div class="md:col-span-2"><label for="household_address" class="block text-sm font-medium text-gray-600 mb-1">戶籍地址</label><input type="text" id="household_address" name="household_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="current_address" class="block text-sm font-medium text-gray-600 mb-1">現居地址</label><input type="text" id="current_address" name="current_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="residence_status" class="block text-sm font-medium text-gray-600 mb-1">居住狀況</label><select id="residence_status" name="residence_status" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="">請選擇</option><option value="自有">自有</option><option value="家人持有">家人持有</option><option value="租賃">租賃</option><option value="宿舍">宿舍</option><option value="其他">其他</option></select></div></div></section>
+                        <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">工作與財務</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="company" class="block text-sm font-medium text-gray-600 mb-1">公司</label><input type="text" id="company" name="company" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入公司名稱"></div><div><label for="job_title" class="block text-sm font-medium text-gray-600 mb-1">職稱</label><input type="text" id="job_title" name="job_title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入職稱"></div><div><label for="salary" class="block text-sm font-medium text-gray-600 mb-1">薪資 (月薪)</label><input type="number" id="salary" name="salary" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入月薪金額"></div><div><label for="seniority" class="block text-sm font-medium text-gray-600 mb-1">年資</label><input type="text" id="seniority" name="seniority" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 3年 or 6個月"></div><div class="md:col-span-2"><label for="company_address" class="block text-sm font-medium text-gray-600 mb-1">公司地址</label><input type="text" id="company_address" name="company_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入公司完整地址"></div><div><label for="company_phone" class="block text-sm font-medium text-gray-600 mb-1">公司電話</label><input type="tel" id="company_phone" name="company_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 02-xxxxxxxx"></div><div><label for="insurance" class="block text-sm font-medium text-gray-600 mb-1">投保情況</label><select id="insurance" name="insurance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="無">無</option><option value="勞保">勞保</option><option value="公保">公保</option><option value="農保">農保</option><option value="漁保">漁保</option><option value="其他">其他</option></select></div><div class="md:col-span-2"><label for="special_conditions" class="block text-sm font-medium text-gray-600 mb-1">特殊狀況</label><textarea id="special_conditions" name="special_conditions" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="若有特殊財務狀況請在此註明"></textarea></div></div></section>
+                        <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">聯絡人</h2><div class="space-y-6"><div class="p-4 border border-gray-200 rounded-lg"><h3 class="font-medium text-gray-800 mb-4">聯絡人 1</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><input type="text" name="contact1_name" placeholder="姓名" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="text" name="contact1_relationship" placeholder="關係" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="tel" name="contact1_phone" placeholder="電話" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div></div><div class="p-4 border border-gray-200 rounded-lg"><h3 class="font-medium text-gray-800 mb-4">聯絡人 2</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><input type="text" name="contact2_name" placeholder="姓名" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="text" name="contact2_relationship" placeholder="關係" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="tel" name="contact2_phone" placeholder="電話" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div></div></div></section>
+                        <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">既有借貸</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div><label for="scribe_loan" class="block text-sm font-medium text-gray-600 mb-1">代書結清</label><input type="text" id="scribe_loan" name="scribe_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div><div><label for="pawnshop_loan" class="block text-sm font-medium text-gray-600 mb-1">當鋪結清</label><input type="text" id="pawnshop_loan" name="pawnshop_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div><div><label for="small_loan" class="block text-sm font-medium text-gray-600 mb-1">小額結清</label><input type="text" id="small_loan" name="small_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div></div></section>
+                        <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">申貸資訊</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="loan_amount" class="block text-sm font-medium text-gray-600 mb-1">申貸金額 (元)</label><input type="number" id="loan_amount" name="loan_amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入希望申請的金額"></div><div class="md:col-span-2"><label for="fund_use" class="block text-sm font-medium text-gray-600 mb-1">資金用途</label><input type="text" id="fund_use" name="fund_use" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 創業、購車、醫療等"></div></div></section>
+                        <div class="flex justify-end pt-6 border-t mt-8 space-x-4"><button type="button" class="back-to-list-btn px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">返回列表</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md">儲存客戶資料</button></div>
+                    </form>
+                </div>
+                <!-- 3. 客戶明細視圖 -->
+                <div id="customerDetailsView" class="view">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <div id="customerDetailsContent" class="space-y-4"></div>
+                        <div class="flex justify-end pt-6 border-t mt-8"><button class="back-to-list-btn px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold">返回列表</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 貸款資料分頁內容 -->
+            <div id="loanTabContent" class="view">
+                <!-- 1. 貸款列表視圖 -->
+                <div id="loanListView" class="view active">
+                    <div class="flex justify-end mb-6">
+                        <button id="showLoanFormBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition duration-200 shadow-md">
+                            ＋ 建立新貸款
+                        </button>
+                    </div>
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">客戶姓名</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">貸款金額</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">剩餘本金</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">已繳本金</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">已繳利息</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">每期應繳</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">交易筆數</th>
+                                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態</th>
+                                        <th scope="col" class="relative px-4 py-3"><span class="sr-only">操作</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loanTableBody" class="bg-white divide-y divide-gray-200">
+                                    <tr id="no-loan-row"><td colspan="9" class="px-6 py-12 text-center text-gray-500">目前沒有任何貸款資料</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- 2. 貸款表單視圖 -->
+                <div id="loanFormView" class="view">
+                     <form id="loanForm" class="space-y-8 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <section>
+                            <h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">建立貸款資料</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                <!-- Row 1 -->
+                                <div class="md:col-span-2">
+                                    <label for="loan_customer_id" class="block text-sm font-medium text-gray-600 mb-1">選擇客戶</label>
+                                    <select id="loan_customer_id" name="loan_customer_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required></select>
+                                </div>
+                                <!-- Row 2 -->
+                                <div>
+                                    <label for="loan_apply_amount" class="block text-sm font-medium text-gray-600 mb-1">貸款金額 (元)</label>
+                                    <input type="number" id="loan_apply_amount" name="loan_apply_amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入貸款金額" required>
+                                </div>
+                                <div>
+                                    <label for="loan_date" class="block text-sm font-medium text-gray-600 mb-1">貸款日期</label>
+                                    <input type="date" id="loan_date" name="loan_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <!-- Row 3 -->
+                                <div class="flex items-end space-x-2">
+                                    <div class="flex-grow">
+                                        <label for="loan_interest_rate" class="block text-sm font-medium text-gray-600 mb-1">貸款利率 (%)</label>
+                                        <input type="number" step="0.01" id="loan_interest_rate" name="loan_interest_rate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 2.5" required>
+                                    </div>
+                                    <div>
+                                        <label for="loan_interest_period" class="block text-sm font-medium text-gray-600 mb-1">單位</label>
+                                        <select id="loan_interest_period" name="loan_interest_period" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="year">年</option>
+                                            <option value="month">月</option>
+                                            <option value="day">日</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="loan_mode" class="block text-sm font-medium text-gray-600 mb-1">貸款模式</label>
+                                    <select id="loan_mode" name="loan_mode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="amortization">本利攤還</option>
+                                        <option value="interest_only">純繳利息</option>
+                                    </select>
+                                </div>
+                                <!-- Row 4 -->
+                                <div class="flex items-end space-x-2">
+                                    <div class="flex-grow">
+                                        <label for="repayment_cycle" class="block text-sm font-medium text-gray-600 mb-1">還款週期</label>
+                                        <select id="repayment_cycle" name="repayment_cycle" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                            <option value="month">月</option>
+                                            <option value="week">週</option>
+                                            <option value="day">日</option>
+                                        </select>
+                                    </div>
+                                    <div id="repayment_days_wrapper" class="hidden">
+                                        <label for="repayment_days" class="block text-sm font-medium text-gray-600 mb-1">天數</label>
+                                        <input type="number" id="repayment_days" name="repayment_days" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="幾日">
+                                    </div>
+                                </div>
+                                <div id="loan_term_wrapper">
+                                    <label for="loan_term" class="block text-sm font-medium text-gray-600 mb-1">貸款期數</label>
+                                    <input type="number" id="loan_term" name="loan_term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200 disabled:cursor-not-allowed" placeholder="總共要還幾期">
+                                </div>
+                                <!-- Row 5 -->
+                                <div id="calculation_method_wrapper">
+                                    <label class="block text-sm font-medium text-gray-600 mb-2">計算公式</label>
+                                    <div class="flex items-center space-x-4">
+                                        <label for="calc_method_pmt" class="flex items-center">
+                                            <input type="radio" id="calc_method_pmt" name="calc_method" value="pmt" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
+                                            <span class="ml-2 text-sm text-gray-700">標準PMT公式</span>
+                                        </label>
+                                        <label for="calc_method_simple" class="flex items-center">
+                                            <input type="radio" id="calc_method_simple" name="calc_method" value="simple" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                            <span class="ml-2 text-sm text-gray-700">簡易利息計算</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="loan_status" class="block text-sm font-medium text-gray-600 mb-1">貸款狀態</label>
+                                    <select id="loan_status" name="loan_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                        <option value="審核中">審核中</option>
+                                        <option value="已核准">已核准</option>
+                                        <option value="已駁回">已駁回</option>
+                                        <option value="已清償">已清償</option>
+                                    </select>
+                                </div>
+                                <!-- Row 6 -->
+                                <div class="md:col-span-2 flex items-center pt-2">
+                                    <input id="principal_reduction" name="principal_reduction" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <label for="principal_reduction" class="ml-2 block text-sm text-gray-900">是否還本降息</label>
+                                </div>
+                                <!-- Row 7 -->
+                                <div class="md:col-span-2">
+                                    <label for="loan_notes" class="block text-sm font-medium text-gray-600 mb-1">備註</label>
+                                    <textarea id="loan_notes" name="loan_notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="可在此輸入關於此筆貸款的備註事項"></textarea>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="flex justify-end pt-6 border-t mt-8 space-x-4">
+                            <button type="button" class="back-to-list-btn px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">返回列表</button>
+                            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold shadow-md">儲存貸款資料</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- 3. 貸款明細視圖 -->
+                <div id="loanDetailsView" class="view">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <div id="loanDetailsContent" class="space-y-4"></div>
+                        
+                        <!-- 交易紀錄區塊 -->
+                        <div id="transactionSection" class="mt-8 pt-6 border-t">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-semibold text-gray-700">交易紀錄</h3>
+                                <button id="showTransactionFormBtn" class="px-4 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-semibold">新增交易紀錄</button>
+                            </div>
+
+                            <!-- 交易統計看板 -->
+                            <div id="transactionSummary" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-100 p-4 rounded-lg mb-6">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">剩餘本金</p>
+                                    <p id="summaryRemainingPrincipal" class="text-lg font-bold text-gray-900">NT$ 0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">已繳本金</p>
+                                    <p id="summaryPrincipalPaid" class="text-lg font-bold text-green-600">NT$ 0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">已繳利息</p>
+                                    <p id="summaryInterestPaid" class="text-lg font-bold text-orange-600">NT$ 0</p>
+                                </div>
+                            </div>
+                            
+                            <!-- 新增交易表單 (預設隱藏) -->
+                            <form id="addTransactionForm" class="hidden bg-gray-50 p-4 rounded-lg mb-6 space-y-4">
+                                <h4 class="font-semibold">新增一筆交易</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label for="transaction_date" class="block text-sm font-medium text-gray-600">繳款日期</label>
+                                        <input type="date" id="transaction_date" name="transaction_date" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                                    </div>
+                                    <div>
+                                        <label for="transaction_principal" class="block text-sm font-medium text-gray-600">繳款本金</label>
+                                        <input type="number" id="transaction_principal" name="transaction_principal" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="0">
+                                    </div>
+                                    <div>
+                                        <label for="transaction_interest" class="block text-sm font-medium text-gray-600">繳款利息</label>
+                                        <input type="number" id="transaction_interest" name="transaction_interest" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="0">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label for="transaction_notes" class="block text-sm font-medium text-gray-600">備註</label>
+                                    <textarea id="transaction_notes" name="transaction_notes" rows="2" class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-3">
+                                    <button type="button" id="cancelTransactionBtn" class="px-4 py-2 text-sm bg-gray-200 rounded-md hover:bg-gray-300">取消</button>
+                                    <button type="submit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">儲存交易</button>
+                                </div>
+                            </form>
+
+                            <!-- 交易歷史表格 -->
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">日期</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">繳款本金</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">繳款利息</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">備註</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactionHistoryBody" class="bg-white divide-y divide-gray-200">
+                                        <!-- 交易紀錄將動態插入此處 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-6 border-t mt-8">
+                            <button class="back-to-list-btn px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 font-semibold">返回列表</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 設定分頁內容 -->
+            <div id="settingsTabContent" class="view">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-lg mx-auto">
+                    <form id="settingsForm" class="space-y-6">
+                        <h2 class="text-xl font-semibold text-gray-700">系統設定</h2>
+                        <div>
+                            <label for="companyName" class="block text-sm font-medium text-gray-600 mb-1">公司或系統名稱</label>
+                            <input type="text" id="companyName" name="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入您的公司名稱">
+                        </div>
+                        <div class="flex justify-end pt-4">
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md">
+                                儲存設定
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 資料庫
+        let customers = [];
+        let loans = [];
+        let currentEditingLoanId = null;
+
+        // --- DOM 元素 ---
+        const mainTitle = document.getElementById('main-title');
+        const headerSubtitle = document.getElementById('header-subtitle');
+        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn');
+        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent');
+        const customerListView = document.getElementById('customerListView'), customerFormView = document.getElementById('customerFormView'), customerDetailsView = document.getElementById('customerDetailsView');
+        const showCustomerFormBtn = document.getElementById('showCustomerFormBtn'), customerForm = document.getElementById('customerForm'), customerTableBody = document.getElementById('customerTableBody'), customerDetailsContent = document.getElementById('customerDetailsContent');
+        const loanListView = document.getElementById('loanListView'), loanFormView = document.getElementById('loanFormView'), loanDetailsView = document.getElementById('loanDetailsView');
+        const showLoanFormBtn = document.getElementById('showLoanFormBtn'), loanForm = document.getElementById('loanForm'), loanTableBody = document.getElementById('loanTableBody'), loanDetailsContent = document.getElementById('loanDetailsContent');
+        const loanCustomerIdSelect = document.getElementById('loan_customer_id'), repaymentCycleSelect = document.getElementById('repayment_cycle'), repaymentDaysWrapper = document.getElementById('repayment_days_wrapper');
+        const loanModeSelect = document.getElementById('loan_mode'), loanTermInput = document.getElementById('loan_term'), loanTermWrapper = document.getElementById('loan_term_wrapper');
+        const transactionSection = document.getElementById('transactionSection'), showTransactionFormBtn = document.getElementById('showTransactionFormBtn'), addTransactionForm = document.getElementById('addTransactionForm'), cancelTransactionBtn = document.getElementById('cancelTransactionBtn'), transactionHistoryBody = document.getElementById('transactionHistoryBody');
+        const summaryRemainingPrincipal = document.getElementById('summaryRemainingPrincipal'), summaryPrincipalPaid = document.getElementById('summaryPrincipalPaid'), summaryInterestPaid = document.getElementById('summaryInterestPaid');
+        const settingsForm = document.getElementById('settingsForm'), companyNameInput = document.getElementById('companyName');
+        const calculationMethodWrapper = document.getElementById('calculation_method_wrapper'), principalReductionCheckbox = document.getElementById('principal_reduction');
+        const calcMethodRadios = document.querySelectorAll('input[name="calc_method"]');
+
+        // --- 欄位標籤對應 ---
+        const customerFieldLabels = { name: '姓名', identity: '身分證', dob: '生日', mobile: '手機', home_phone: '住家電話', household_address: '戶籍地址', current_address: '現居地址', residence_status: '居住狀況', company: '公司', job_title: '職稱', salary: '薪資 (月薪)', seniority: '年資', company_address: '公司地址', company_phone: '公司電話', insurance: '投保情況', special_conditions: '特殊狀況', contact1_name: '聯絡人1-姓名', contact1_relationship: '聯絡人1-關係', contact1_phone: '聯絡人1-電話', contact2_name: '聯絡人2-姓名', contact2_relationship: '聯絡人2-關係', contact2_phone: '聯絡人2-電話', scribe_loan: '代書結清', pawnshop_loan: '當鋪結清', small_loan: '小額結清', loan_amount: '申貸金額 (元)', fund_use: '資金用途' };
+        const loanFieldLabels = { loan_customer_id: '客戶姓名', loan_apply_amount: '貸款金額', loan_date: '貸款日期', loan_interest_rate: '貸款利率', loan_interest_period: '利率單位', loan_mode: '貸款模式', calc_method: '計算公式', repayment_cycle: '還款週期', repayment_days: '還款天數', loan_term: '貸款期數', loan_reason: '貸款原因', loan_status: '貸款狀態', principal_reduction: '還本降息', loan_notes: '備註', periodic_payment: '每期應繳金額' };
+        
+        // --- 通用函數 ---
+        function switchView(activeView, parentViewContainer) {
+            Array.from(parentViewContainer.children).forEach(v => v.classList.remove('active'));
+            activeView.classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // --- 分頁管理 ---
+        function switchTab(activeTab) {
+            [customerTabContent, loanTabContent, settingsTabContent].forEach(c => c.classList.remove('active'));
+            [customerTabBtn, loanTabBtn, settingsTabBtn].forEach(b => b.classList.remove('active'));
+            
+            if (activeTab === 'customer') {
+                customerTabContent.classList.add('active');
+                customerTabBtn.classList.add('active');
+                headerSubtitle.textContent = '客戶列表';
+                switchView(customerListView, customerTabContent);
+            } else if (activeTab === 'loan') {
+                loanTabContent.classList.add('active');
+                loanTabBtn.classList.add('active');
+                headerSubtitle.textContent = '貸款列表';
+                switchView(loanListView, loanTabContent);
+            } else if (activeTab === 'settings') {
+                settingsTabContent.classList.add('active');
+                settingsTabBtn.classList.add('active');
+                headerSubtitle.textContent = '系統設定';
+            }
+        }
+        customerTabBtn.addEventListener('click', () => switchTab('customer'));
+        loanTabBtn.addEventListener('click', () => switchTab('loan'));
+        settingsTabBtn.addEventListener('click', () => switchTab('settings'));
+
+        // --- 設定管理 ---
+        function loadSettings() {
+            const savedCompanyName = localStorage.getItem('companyName');
+            if (savedCompanyName) {
+                mainTitle.textContent = savedCompanyName;
+                companyNameInput.value = savedCompanyName;
+            }
+        }
+
+        settingsForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newName = companyNameInput.value.trim();
+            if (newName) {
+                localStorage.setItem('companyName', newName);
+                mainTitle.textContent = newName;
+                alert('設定已儲存！');
+            }
+        });
+
+        // --- 客戶管理邏輯 ---
+        function renderCustomerList() {
+            customerTableBody.innerHTML = '';
+            if (customers.length === 0) {
+                customerTableBody.innerHTML = `<tr><td colspan="4" class="px-6 py-12 text-center text-gray-500">目前沒有任何客戶資料</td></tr>`;
+            } else {
+                customers.forEach(c => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${c.name||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.mobile||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.loan_amount? 'NT$ '+parseInt(c.loan_amount).toLocaleString():'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button data-id="${c.id}" class="view-customer-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button></td>`;
+                    customerTableBody.appendChild(row);
+                });
+            }
+        }
+        function renderCustomerDetails(customerId) {
+            const customer = customers.find(c => c.id == customerId);
+            if (!customer) return;
+            customerDetailsContent.innerHTML = '';
+            for (const [key, value] of Object.entries(customer)) {
+                if (key !== 'id' && value) {
+                    const label = customerFieldLabels[key] || key;
+                    customerDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${value}</p></div>`;
+                }
+            }
+            headerSubtitle.textContent = `客戶詳細資料: ${customer.name}`;
+            switchView(customerDetailsView, customerTabContent);
+        }
+        showCustomerFormBtn.addEventListener('click', () => {
+            headerSubtitle.textContent = '新增客戶資料';
+            customerForm.reset();
+            switchView(customerFormView, customerTabContent);
+        });
+        customerForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newCustomer = Object.fromEntries(formData.entries());
+            newCustomer.id = Date.now();
+            customers.push(newCustomer);
+            renderCustomerList();
+            switchTab('customer');
+        });
+        customerTableBody.addEventListener('click', e => {
+            if (e.target.classList.contains('view-customer-details-btn')) {
+                renderCustomerDetails(e.target.dataset.id);
+            }
+        });
+
+        // --- 貸款管理邏輯 ---
+        function handleLoanFormLogic() {
+            const isInterestOnly = loanModeSelect.value === 'interest_only';
+            const isSimpleCalc = document.querySelector('input[name="calc_method"]:checked').value === 'simple';
+
+            // 期數欄位
+            loanTermInput.disabled = isInterestOnly;
+            loanTermInput.required = !isInterestOnly;
+            loanTermWrapper.classList.toggle('opacity-50', isInterestOnly);
+            if(isInterestOnly) loanTermInput.value = '';
+
+            // 計算公式欄位
+            calculationMethodWrapper.classList.toggle('opacity-50', isInterestOnly);
+            calcMethodRadios.forEach(radio => radio.disabled = isInterestOnly);
+
+            // 還本降息欄位
+            principalReductionCheckbox.disabled = isInterestOnly || isSimpleCalc;
+            principalReductionCheckbox.parentElement.classList.toggle('opacity-50', isInterestOnly || isSimpleCalc);
+            if (isSimpleCalc) {
+                principalReductionCheckbox.checked = false;
+            }
+        }
+        function calculatePeriodicPayment(loanData) {
+            const L = parseFloat(loanData.loan_apply_amount);
+            const term = parseInt(loanData.loan_term);
+            const rate = parseFloat(loanData.loan_interest_rate) / 100;
+            if (isNaN(L) || isNaN(rate) || L <= 0 || rate < 0) return 0;
+            if (loanData.loan_mode === 'amortization' && (isNaN(term) || term <= 0)) return 0;
+            let periodicRate;
+            let ratePeriod = loanData.loan_interest_period;
+            let cycle = loanData.repayment_cycle;
+            let cycleDays = cycle === 'day' ? parseInt(loanData.repayment_days) || 1 : (cycle === 'week' ? 7 : 30.4375);
+            let dailyRate;
+            if (ratePeriod === 'year') dailyRate = rate / 365;
+            else if (ratePeriod === 'month') dailyRate = rate / 30.4375;
+            else dailyRate = rate;
+            periodicRate = dailyRate * cycleDays;
+
+            if (loanData.loan_mode === 'interest_only') {
+                 return Math.round(L * periodicRate);
+            }
+            
+            if (loanData.calc_method === 'simple') {
+                return Math.round((L / term) + (L * periodicRate));
+            } else { // PMT
+                const r = periodicRate;
+                const n = term;
+                if (r === 0) return Math.round(L / n);
+                const pmt = L * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+                return Math.round(pmt);
+            }
+        }
+        function populateCustomerDropdown() {
+            loanCustomerIdSelect.innerHTML = '<option value="">請選擇一位客戶...</option>';
+            if (customers.length === 0) {
+                loanCustomerIdSelect.innerHTML = '<option value="">請先到「客戶管理」建立客戶</option>';
+            } else {
+                customers.forEach(c => {
+                    loanCustomerIdSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+            }
+        }
+        function renderLoanList() {
+            loanTableBody.innerHTML = '';
+            if (loans.length === 0) {
+                loanTableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">目前沒有任何貸款資料</td></tr>`;
+            } else {
+                loans.forEach(l => {
+                    const customer = customers.find(c => c.id == l.loan_customer_id);
+                    const totalPrincipalPaid = l.transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+                    const totalInterestPaid = l.transactions.reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
+                    const remainingPrincipal = (parseFloat(l.loan_apply_amount) || 0) - totalPrincipalPaid;
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    const statusColor = l.loan_status === '已核准' ? 'bg-green-100 text-green-800' : (l.loan_status === '已駁回' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800');
+                    const addTransactionBtnHtml = l.loan_status === '已核准' ? `<button data-id="${l.id}" class="add-transaction-btn text-green-600 hover:text-green-900 ml-4">新增交易</button>` : '';
+                    row.innerHTML = `
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${customer ? customer.name : '未知客戶'}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${l.loan_apply_amount ? 'NT$ ' + parseInt(l.loan_apply_amount).toLocaleString() : 'N/A'}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-blue-600 font-medium">${'NT$ ' + remainingPrincipal.toLocaleString()}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-green-600 font-medium">${'NT$ ' + totalPrincipalPaid.toLocaleString()}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-orange-600 font-medium">${'NT$ ' + totalInterestPaid.toLocaleString()}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-bold text-red-600">${l.periodic_payment ? 'NT$ ' + l.periodic_payment.toLocaleString() : 'N/A'}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center"><div class="text-sm text-gray-600">${l.transactions.length}</div></td>
+                        <td class="px-4 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${l.loan_status || 'N/A'}</span></td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button data-id="${l.id}" class="view-loan-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button>
+                            ${addTransactionBtnHtml}
+                        </td>`;
+                    loanTableBody.appendChild(row);
+                });
+            }
+        }
+        function renderLoanDetails(loanId, showForm = false) {
+            currentEditingLoanId = loanId;
+            const loan = loans.find(l => l.id == loanId);
+            if (!loan) return;
+            const customer = customers.find(c => c.id == loan.loan_customer_id);
+            loanDetailsContent.innerHTML = '';
+            for (const [key, value] of Object.entries(loan)) {
+                 if (key !== 'id' && key !== 'transactions' && value !== undefined) {
+                    let displayValue = value;
+                    let label = loanFieldLabels[key] || key;
+                    if (key === 'periodic_payment') {
+                        const dynamicLabel = loan.principal_reduction ? '<span class="ml-2 text-xs text-blue-500">(還本降息後更新)</span>' : '';
+                        loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words font-bold text-red-600">${`NT$ ${parseInt(value).toLocaleString()}`}${dynamicLabel}</p></div>`;
+                        continue;
+                    }
+                    if (key === 'loan_customer_id') displayValue = customer ? customer.name : '未知客戶';
+                    if (key === 'loan_apply_amount') displayValue = `NT$ ${parseInt(value).toLocaleString()}`;
+                    if (key === 'loan_interest_rate') displayValue = `${value} %`;
+                    if (key === 'principal_reduction') displayValue = loan.principal_reduction ? '是' : '否';
+                    if (key === 'loan_mode') displayValue = value === 'amortization' ? '本利攤還' : '純繳利息';
+                    if (key === 'calc_method') displayValue = value === 'simple' ? '簡易利息計算' : '標準PMT公式';
+                    if (key === 'loan_interest_period') displayValue = value === 'year' ? '年' : (value === 'month' ? '月' : '日');
+                    if (key === 'repayment_cycle') displayValue = value === 'month' ? '月' : (value === 'week' ? '週' : '日');
+                    loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${displayValue}</p></div>`;
+                }
+            }
+            renderTransactionSummaryAndHistory(loanId);
+            headerSubtitle.textContent = `貸款詳細資料: ${customer.name}`;
+            if (showForm) {
+                addTransactionForm.classList.remove('hidden');
+                document.getElementById('transaction_date').value = new Date().toISOString().split('T')[0];
+            } else {
+                addTransactionForm.classList.add('hidden');
+            }
+            switchView(loanDetailsView, loanTabContent);
+        }
+        function renderTransactionSummaryAndHistory(loanId) {
+            const loan = loans.find(l => l.id == loanId);
+            if (!loan) return;
+
+            // 計算統計數據
+            const totalPrincipalPaid = loan.transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+            const totalInterestPaid = loan.transactions.reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
+            const remainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - totalPrincipalPaid;
+
+            // 渲染統計看板
+            summaryRemainingPrincipal.textContent = `NT$ ${remainingPrincipal.toLocaleString()}`;
+            summaryPrincipalPaid.textContent = `NT$ ${totalPrincipalPaid.toLocaleString()}`;
+            summaryInterestPaid.textContent = `NT$ ${totalInterestPaid.toLocaleString()}`;
+
+            // 渲染交易歷史
+            transactionHistoryBody.innerHTML = '';
+            if (loan.transactions.length === 0) {
+                transactionHistoryBody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">尚無交易紀錄</td></tr>`;
+                return;
+            }
+            loan.transactions.forEach(t => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-gray-600">${t.date}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${t.principal ? 'NT$ ' + parseInt(t.principal).toLocaleString() : '0'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${t.interest ? 'NT$ ' + parseInt(t.interest).toLocaleString() : '0'}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500">${t.notes || ''}</td>
+                `;
+                transactionHistoryBody.appendChild(row);
+            });
+        }
+        showLoanFormBtn.addEventListener('click', () => {
+            headerSubtitle.textContent = '建立新貸款';
+            loanForm.reset();
+            document.getElementById('loan_date').value = new Date().toISOString().split('T')[0];
+            repaymentDaysWrapper.classList.add('hidden');
+            populateCustomerDropdown();
+            handleLoanFormLogic();
+            switchView(loanFormView, loanTabContent);
+        });
+        repaymentCycleSelect.addEventListener('change', (e) => {
+            repaymentDaysWrapper.classList.toggle('hidden', e.target.value !== 'day');
+        });
+        loanModeSelect.addEventListener('change', handleLoanFormLogic);
+        calcMethodRadios.forEach(radio => radio.addEventListener('change', handleLoanFormLogic));
+
+        loanForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const newLoan = Object.fromEntries(formData.entries());
+            newLoan.id = Date.now();
+            newLoan.principal_reduction = formData.has('principal_reduction');
+            newLoan.transactions = []; // 初始化交易紀錄
+            newLoan.periodic_payment = calculatePeriodicPayment(newLoan);
+            loans.push(newLoan);
+            renderLoanList();
+            switchTab('loan');
+        });
+        loanTableBody.addEventListener('click', e => {
+            if (e.target.classList.contains('view-loan-details-btn')) {
+                renderLoanDetails(e.target.dataset.id);
+            }
+            if (e.target.classList.contains('add-transaction-btn')) {
+                renderLoanDetails(e.target.dataset.id, true); // 顯示明細並展開表單
+            }
+        });
+
+        // --- 交易紀錄邏輯 ---
+        showTransactionFormBtn.addEventListener('click', () => {
+            addTransactionForm.classList.remove('hidden');
+            document.getElementById('transaction_date').value = new Date().toISOString().split('T')[0];
+        });
+        cancelTransactionBtn.addEventListener('click', () => {
+            addTransactionForm.classList.add('hidden');
+            addTransactionForm.reset();
+        });
+        addTransactionForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const loan = loans.find(l => l.id == currentEditingLoanId);
+            if (!loan) return;
+            const newTransaction = {
+                id: Date.now(),
+                date: e.target.transaction_date.value,
+                principal: e.target.transaction_principal.value,
+                interest: e.target.transaction_interest.value,
+                notes: e.target.transaction_notes.value
+            };
+            loan.transactions.push(newTransaction);
+
+            // 檢查是否需要還本降息並重算 (僅限PMT公式)
+            if ((parseFloat(newTransaction.principal) || 0) > 0 && loan.principal_reduction && loan.calc_method === 'pmt') {
+                const totalPrincipalPaid = loan.transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+                const newRemainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - totalPrincipalPaid;
+                
+                const tempLoanDataForCalc = { ...loan, loan_apply_amount: newRemainingPrincipal };
+                loan.periodic_payment = calculatePeriodicPayment(tempLoanDataForCalc);
+                
+                renderLoanDetails(currentEditingLoanId, false);
+            } else {
+                 renderTransactionSummaryAndHistory(currentEditingLoanId);
+            }
+            
+            renderLoanList(); // 更新主列表
+            addTransactionForm.reset();
+            addTransactionForm.classList.add('hidden');
+        });
+
+        // --- 通用返回按鈕 ---
+        document.querySelectorAll('.back-to-list-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (customerTabContent.classList.contains('active')) {
+                    switchTab('customer');
+                } else {
+                    switchTab('loan');
+                }
+            });
+        });
+
+        // --- 初始渲染 ---
+        loadSettings();
+        renderCustomerList();
+        renderLoanList();
+        switchTab('customer');
+    </script>
+</body>
+</html>
