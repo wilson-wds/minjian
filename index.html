@@ -164,6 +164,9 @@
                     <button id="adminTabBtn" class="tab-btn hidden whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         管理員
                     </button>
+                    <button id="helpTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        幫助
+                    </button>
                 </nav>
             </div>
 
@@ -338,6 +341,58 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 幫助分頁內容 -->
+                <div id="helpTabContent" class="view">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg space-y-6">
+                        <h2 class="text-2xl font-bold text-gray-800 border-b pb-4">操作說明</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">1. 帳號註冊與登入</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **註冊：** 在登入頁面點擊「註冊」分頁，輸入您的電子信箱和至少6位數的密碼即可建立新帳號。新帳號預設有1天的試用權限。<br>
+                                    - **登入：** 使用您註冊的電子信箱和密碼登入系統。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">2. 客戶管理</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **新增客戶：** 在「客戶管理」分頁，點擊右上角的「＋ 新增客戶資料」按鈕，填寫完畢後儲存。<br>
+                                    - **編輯客戶：** 在客戶列表中，點擊對應客戶右側的「編輯」按鈕，即可修改並更新資料。<br>
+                                    - **查看明細：** 點擊「查看明細」按鈕，可以瀏覽該客戶的所有詳細資訊。
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">3. 貸款資料管理</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **建立貸款：** 在「貸款資料」分頁，點擊「建立新貸款」。您必須先選擇一位已存在的客戶，才能建立與之關聯的貸款。<br>
+                                    - **計算公式：** 建立貸款時可選擇「標準PMT公式」（本息平均攤還）或「簡易利息計算」（本金/期數 + 本金*利率）。<br>
+                                    - **還本降息：** 若勾選此項，每次新增帶有「繳款本金」的交易後，系統會自動以剩餘本金重算下一期的應繳金額（僅限PMT公式）。<br>
+                                    - **新增交易紀錄：** 在貸款明細頁面，您可以為該筆貸款新增還款紀錄，系統會自動統計已繳金額與剩餘本金。<br>
+                                    - **編輯狀態：** 在貸款明細頁面，您可以隨時點擊「貸款狀態」的下拉選單來更新目前進度。
+                                </p>
+                            </div>
+
+                             <div>
+                                <h3 class="text-lg font-semibold text-gray-700">4. 設定</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **公司名稱：** 您可以在此設定專屬於您的系統標題，此設定將與您的帳號綁定。
+                                </p>
+                            </div>
+
+                            <div class="pt-4 border-t">
+                                <h3 class="text-lg font-semibold text-red-600">5. 管理員專屬功能</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **使用者管理：** 在「管理員」分頁，您可以查看所有已註冊的使用者，並設定或修改他們的「權限截止日期」。留空表示無期限。<br>
+                                    - **跑馬燈公告：** 在「設定」分頁中，管理員可以看到額外的跑馬燈設定區塊，可在此發布對所有使用者顯示的公告。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
@@ -382,8 +437,8 @@
         const loader = document.getElementById('loader'), authStatus = document.getElementById('auth-status');
         const mainTitle = document.getElementById('main-title'), headerSubtitle = document.getElementById('header-subtitle'), userInfo = document.getElementById('user-info'), logoutBtn = document.getElementById('logout-btn');
         const expiryReminder = document.getElementById('expiry-reminder');
-        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn');
-        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent');
+        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn'), helpTabBtn = document.getElementById('helpTabBtn');
+        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent'), helpTabContent = document.getElementById('helpTabContent');
         const customerListView = document.getElementById('customerListView'), customerFormView = document.getElementById('customerFormView'), customerDetailsView = document.getElementById('customerDetailsView');
         const showCustomerFormBtn = document.getElementById('showCustomerFormBtn'), customerForm = document.getElementById('customerForm'), customerTableBody = document.getElementById('customerTableBody'), customerDetailsContent = document.getElementById('customerDetailsContent');
         const customerFormTitle = document.getElementById('customer-form-title'), customerFormSubmitBtn = document.getElementById('customer-form-submit-btn'); 
@@ -626,8 +681,8 @@
 
         // --- 分頁管理 ---
         function switchTab(activeTab) {
-            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent].forEach(c => c.classList.remove('active'));
-            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn].forEach(b => b.classList.remove('active'));
+            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent, helpTabContent].forEach(c => c.classList.remove('active'));
+            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn, helpTabBtn].forEach(b => b.classList.remove('active'));
             
             if (activeTab === 'customer') {
                 customerTabContent.classList.add('active');
@@ -647,12 +702,17 @@
                 adminTabContent.classList.add('active');
                 adminTabBtn.classList.add('active');
                 headerSubtitle.textContent = '使用者管理';
+            } else if (activeTab === 'help') {
+                helpTabContent.classList.add('active');
+                helpTabBtn.classList.add('active');
+                headerSubtitle.textContent = '操作說明';
             }
         }
         customerTabBtn.addEventListener('click', () => switchTab('customer'));
         loanTabBtn.addEventListener('click', () => switchTab('loan'));
         settingsTabBtn.addEventListener('click', () => switchTab('settings'));
         adminTabBtn.addEventListener('click', () => switchTab('admin'));
+        helpTabBtn.addEventListener('click', () => switchTab('help'));
 
         // --- 設定管理 ---
         settingsForm.addEventListener('submit', async (e) => {
