@@ -42,6 +42,21 @@
             color: #3B82F6;
             background-color: #EFF6FF; /* blue-50 */
         }
+        /* 登入分頁按鈕樣式 */
+        .auth-tab-btn {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #6B7280; /* gray-500 */
+        }
+        .auth-tab-btn.active {
+            border-color: #3B82F6; /* blue-500 */
+            color: #3B82F6; /* blue-500 */
+        }
         /* 簡單的載入動畫 */
         .loader {
             border: 4px solid #f3f3f3;
@@ -55,26 +70,74 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        /* 跑馬燈動畫 */
+        #marquee-text-content {
+            padding-left: 100%;
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-100%); }
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
     <!-- 登入畫面 -->
     <div id="auth-view" class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-2xl shadow-lg text-center max-w-sm w-full">
-            <h1 id="auth-title" class="text-2xl font-bold text-gray-800 mb-2">歡迎使用</h1>
-            <p class="text-gray-500 mb-6">貸款客戶管理系統</p>
+        <div class="bg-white p-8 rounded-2xl shadow-lg max-w-sm w-full">
+            <h1 id="auth-title" class="text-2xl font-bold text-gray-800 mb-2 text-center">歡迎使用</h1>
+            <p class="text-gray-500 mb-6 text-center">貸款客戶管理系統</p>
+
+            <!-- 登入/註冊 Tabs -->
+            <div class="mb-4 border-b border-gray-200">
+                <nav class="-mb-px flex" aria-label="Tabs">
+                    <button id="login-tab-btn" class="auth-tab-btn active">登入</button>
+                    <button id="register-tab-btn" class="auth-tab-btn">註冊</button>
+                </nav>
+            </div>
+
+            <!-- 登入表單 -->
+            <form id="login-form" class="space-y-4 text-left">
+                <div>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700">電子信箱</label>
+                    <input type="email" id="login-email" autocomplete="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">密碼</label>
+                    <input type="password" id="login-password" autocomplete="current-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-blue-400">登入</button>
+            </form>
+
+            <!-- 註冊表單 (預設隱藏) -->
+            <form id="register-form" class="hidden space-y-4 text-left">
+                <div>
+                    <label for="register-email" class="block text-sm font-medium text-gray-700">電子信箱</label>
+                    <input type="email" id="register-email" autocomplete="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="register-password" class="block text-sm font-medium text-gray-700">密碼 (至少6位數)</label>
+                    <input type="password" id="register-password" autocomplete="new-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <button type="submit" id="register-btn" class="w-full bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 disabled:bg-green-400">註冊新帳號</button>
+            </form>
+            
             <div id="loader" class="loader mx-auto my-4 hidden"></div>
-            <p id="auth-status" class="text-sm text-gray-500 mb-4">正在連接伺服器...</p>
-            <button id="anonymous-login-btn" class="w-full bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-800 transition duration-200 disabled:bg-gray-400">
-                匿名登入
-            </button>
+            <p id="auth-status" class="text-sm text-red-500 mt-4 h-5 text-center"></p>
         </div>
     </div>
+
 
     <!-- 主應用程式畫面 (預設隱藏) -->
     <div id="main-app-view" class="hidden">
         <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-7xl">
+            <!-- 跑馬燈 -->
+            <div id="marquee-container" class="hidden w-full bg-blue-100 text-blue-800 text-sm font-medium px-4 py-2 rounded-md overflow-hidden whitespace-nowrap mb-4">
+                <span id="marquee-text-content"></span>
+            </div>
+
             <!-- 頁面標題 -->
             <header class="mb-8">
                 <div class="flex justify-between items-center">
@@ -83,6 +146,7 @@
                 </div>
                 <p id="header-subtitle" class="text-gray-500 mt-2">客戶列表</p>
                 <p id="user-info" class="text-xs text-gray-400 mt-1"></p>
+                <p id="expiry-reminder" class="hidden mt-2 text-sm font-medium text-yellow-800 bg-yellow-100 p-2 rounded-md"></p>
             </header>
 
             <!-- 分頁導覽 -->
@@ -96,6 +160,9 @@
                     </button>
                     <button id="settingsTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         設定
+                    </button>
+                    <button id="adminTabBtn" class="tab-btn hidden whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        管理員
                     </button>
                 </nav>
             </div>
@@ -132,12 +199,12 @@
                     <!-- 2. 客戶表單視圖 -->
                     <div id="customerFormView" class="view">
                        <form id="customerForm" class="space-y-8 bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
-                            <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">基本資料</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="name" class="block text-sm font-medium text-gray-600 mb-1">姓名</label><input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入客戶姓名" required></div><div><label for="identity" class="block text-sm font-medium text-gray-600 mb-1">身分證</label><input type="text" id="identity" name="identity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入身分證字號"></div><div><label for="dob" class="block text-sm font-medium text-gray-600 mb-1">生日</label><input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div><div><label for="mobile" class="block text-sm font-medium text-gray-600 mb-1">手機</label><input type="tel" id="mobile" name="mobile" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 0988328785"></div><div><label for="home_phone" class="block text-sm font-medium text-gray-600 mb-1">住家電話</label><input type="tel" id="home_phone" name="home_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 04-xxxxxxx"></div><div class="md:col-span-2"><label for="household_address" class="block text-sm font-medium text-gray-600 mb-1">戶籍地址</label><input type="text" id="household_address" name="household_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="current_address" class="block text-sm font-medium text-gray-600 mb-1">現居地址</label><input type="text" id="current_address" name="current_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="residence_status" class="block text-sm font-medium text-gray-600 mb-1">居住狀況</label><select id="residence_status" name="residence_status" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="">請選擇</option><option value="自有">自有</option><option value="家人持有">家人持有</option><option value="租賃">租賃</option><option value="宿舍">宿舍</option><option value="其他">其他</option></select></div></div></section>
+                            <section><h2 id="customer-form-title" class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">新增客戶資料</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="name" class="block text-sm font-medium text-gray-600 mb-1">姓名</label><input type="text" id="name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入客戶姓名" required></div><div><label for="identity" class="block text-sm font-medium text-gray-600 mb-1">身分證</label><input type="text" id="identity" name="identity" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入身分證字號"></div><div><label for="dob" class="block text-sm font-medium text-gray-600 mb-1">生日</label><input type="date" id="dob" name="dob" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div><div><label for="mobile" class="block text-sm font-medium text-gray-600 mb-1">手機</label><input type="tel" id="mobile" name="mobile" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 0988328785"></div><div><label for="home_phone" class="block text-sm font-medium text-gray-600 mb-1">住家電話</label><input type="tel" id="home_phone" name="home_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 04-xxxxxxx"></div><div class="md:col-span-2"><label for="household_address" class="block text-sm font-medium text-gray-600 mb-1">戶籍地址</label><input type="text" id="household_address" name="household_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="current_address" class="block text-sm font-medium text-gray-600 mb-1">現居地址</label><input type="text" id="current_address" name="current_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 彰化市..."></div><div><label for="residence_status" class="block text-sm font-medium text-gray-600 mb-1">居住狀況</label><select id="residence_status" name="residence_status" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="">請選擇</option><option value="自有">自有</option><option value="家人持有">家人持有</option><option value="租賃">租賃</option><option value="宿舍">宿舍</option><option value="其他">其他</option></select></div></div></section>
                             <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">工作與財務</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="company" class="block text-sm font-medium text-gray-600 mb-1">公司</label><input type="text" id="company" name="company" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入公司名稱"></div><div><label for="job_title" class="block text-sm font-medium text-gray-600 mb-1">職稱</label><input type="text" id="job_title" name="job_title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入職稱"></div><div><label for="salary" class="block text-sm font-medium text-gray-600 mb-1">薪資 (月薪)</label><input type="number" id="salary" name="salary" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入月薪金額"></div><div><label for="seniority" class="block text-sm font-medium text-gray-600 mb-1">年資</label><input type="text" id="seniority" name="seniority" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 3年 or 6個月"></div><div class="md:col-span-2"><label for="company_address" class="block text-sm font-medium text-gray-600 mb-1">公司地址</label><input type="text" id="company_address" name="company_address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入公司完整地址"></div><div><label for="company_phone" class="block text-sm font-medium text-gray-600 mb-1">公司電話</label><input type="tel" id="company_phone" name="company_phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 02-xxxxxxxx"></div><div><label for="insurance" class="block text-sm font-medium text-gray-600 mb-1">投保情況</label><select id="insurance" name="insurance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="無">無</option><option value="勞保">勞保</option><option value="公保">公保</option><option value="農保">農保</option><option value="漁保">漁保</option><option value="其他">其他</option></select></div><div class="md:col-span-2"><label for="special_conditions" class="block text-sm font-medium text-gray-600 mb-1">特殊狀況</label><textarea id="special_conditions" name="special_conditions" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="若有特殊財務狀況請在此註明"></textarea></div></div></section>
                             <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">聯絡人</h2><div class="space-y-6"><div class="p-4 border border-gray-200 rounded-lg"><h3 class="font-medium text-gray-800 mb-4">聯絡人 1</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><input type="text" name="contact1_name" placeholder="姓名" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="text" name="contact1_relationship" placeholder="關係" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="tel" name="contact1_phone" placeholder="電話" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div></div><div class="p-4 border border-gray-200 rounded-lg"><h3 class="font-medium text-gray-800 mb-4">聯絡人 2</h3><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><input type="text" name="contact2_name" placeholder="姓名" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="text" name="contact2_relationship" placeholder="關係" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><input type="tel" name="contact2_phone" placeholder="電話" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></div></div></div></section>
                             <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">既有借貸</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-6"><div><label for="scribe_loan" class="block text-sm font-medium text-gray-600 mb-1">代書結清</label><input type="text" id="scribe_loan" name="scribe_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div><div><label for="pawnshop_loan" class="block text-sm font-medium text-gray-600 mb-1">當鋪結清</label><input type="text" id="pawnshop_loan" name="pawnshop_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div><div><label for="small_loan" class="block text-sm font-medium text-gray-600 mb-1">小額結清</label><input type="text" id="small_loan" name="small_loan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="N/A 或 金額"></div></div></section>
                             <section><h2 class="text-xl font-semibold border-b pb-3 mb-6 text-gray-700">申貸資訊</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><label for="loan_amount" class="block text-sm font-medium text-gray-600 mb-1">申貸金額 (元)</label><input type="number" id="loan_amount" name="loan_amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="請輸入希望申請的金額"></div><div class="md:col-span-2"><label for="fund_use" class="block text-sm font-medium text-gray-600 mb-1">資金用途</label><input type="text" id="fund_use" name="fund_use" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="例如: 創業、購車、醫療等"></div></div></section>
-                            <div class="flex justify-end pt-6 border-t mt-8 space-x-4"><button type="button" class="back-to-list-btn px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">返回列表</button><button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md">儲存客戶資料</button></div>
+                            <div class="flex justify-end pt-6 border-t mt-8 space-x-4"><button type="button" class="back-to-list-btn px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">返回列表</button><button type="submit" id="customer-form-submit-btn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold shadow-md">儲存客戶資料</button></div>
                         </form>
                     </div>
                     <!-- 3. 客戶明細視圖 -->
@@ -233,6 +300,42 @@
                                 </button>
                             </div>
                         </form>
+
+                        <!-- 管理員專屬：跑馬燈設定 -->
+                        <div id="admin-settings-section" class="hidden mt-8 pt-6 border-t">
+                             <form id="marquee-form" class="space-y-4">
+                                <h3 class="text-lg font-medium text-gray-900">跑馬燈公告設定</h3>
+                                <div>
+                                    <label for="marquee-text-input" class="block text-sm font-medium text-gray-700">公告內容</label>
+                                    <textarea id="marquee-text-input" rows="3" class="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="輸入要對所有使用者顯示的公告..."></textarea>
+                                </div>
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold">更新跑馬燈</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- 管理員分頁內容 -->
+                <div id="adminTabContent" class="view">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-4">使用者管理</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">電子信箱</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">註冊日期</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">權限截止日期</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-list-table-body" class="bg-white divide-y divide-gray-200">
+                                    <!-- User list will be rendered here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </main>
@@ -242,8 +345,8 @@
     <script type="module">
         // 引入 Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase 設定 (已根據您的圖片更新) ---
         const firebaseConfig = {
@@ -260,22 +363,30 @@
         const db = getFirestore(app);
 
         // --- 全域變數 ---
+        const ADMIN_EMAIL = "a338651@gmail.com"; // **重要**：請將此處改為您自己的管理員 Email
         let customers = [];
         let loans = [];
+        let allUsers = [];
         let currentEditingLoanId = null;
+        let currentEditingCustomerId = null; 
         let userId = null;
         let customerUnsubscribe = null;
         let loanUnsubscribe = null;
         let settingsUnsubscribe = null;
+        let usersUnsubscribe = null;
+        let marqueeUnsubscribe = null;
+        let isExpiredSignOut = false; // 用於標記是否因權限到期而登出
 
         // --- DOM 元素 ---
         const authView = document.getElementById('auth-view'), mainAppView = document.getElementById('main-app-view');
-        const loader = document.getElementById('loader'), authStatus = document.getElementById('auth-status'), anonymousLoginBtn = document.getElementById('anonymous-login-btn');
+        const loader = document.getElementById('loader'), authStatus = document.getElementById('auth-status');
         const mainTitle = document.getElementById('main-title'), headerSubtitle = document.getElementById('header-subtitle'), userInfo = document.getElementById('user-info'), logoutBtn = document.getElementById('logout-btn');
-        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn');
-        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent');
+        const expiryReminder = document.getElementById('expiry-reminder');
+        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn');
+        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent');
         const customerListView = document.getElementById('customerListView'), customerFormView = document.getElementById('customerFormView'), customerDetailsView = document.getElementById('customerDetailsView');
         const showCustomerFormBtn = document.getElementById('showCustomerFormBtn'), customerForm = document.getElementById('customerForm'), customerTableBody = document.getElementById('customerTableBody'), customerDetailsContent = document.getElementById('customerDetailsContent');
+        const customerFormTitle = document.getElementById('customer-form-title'), customerFormSubmitBtn = document.getElementById('customer-form-submit-btn'); 
         const loanListView = document.getElementById('loanListView'), loanFormView = document.getElementById('loanFormView'), loanDetailsView = document.getElementById('loanDetailsView');
         const showLoanFormBtn = document.getElementById('showLoanFormBtn'), loanForm = document.getElementById('loanForm'), loanTableBody = document.getElementById('loanTableBody'), loanDetailsContent = document.getElementById('loanDetailsContent');
         const loanCustomerIdSelect = document.getElementById('loan_customer_id'), repaymentCycleSelect = document.getElementById('repayment_cycle'), repaymentDaysWrapper = document.getElementById('repayment_days_wrapper');
@@ -285,43 +396,156 @@
         const settingsForm = document.getElementById('settingsForm'), companyNameInput = document.getElementById('companyName');
         const calculationMethodWrapper = document.getElementById('calculation_method_wrapper'), principalReductionCheckbox = document.getElementById('principal_reduction');
         const calcMethodRadios = document.querySelectorAll('input[name="calc_method"]');
+        const loginTabBtn = document.getElementById('login-tab-btn'), registerTabBtn = document.getElementById('register-tab-btn');
+        const loginForm = document.getElementById('login-form'), registerForm = document.getElementById('register-form');
+        const userListTableBody = document.getElementById('user-list-table-body');
+        const adminSettingsSection = document.getElementById('admin-settings-section');
+        const marqueeForm = document.getElementById('marquee-form');
+        const marqueeTextInput = document.getElementById('marquee-text-input');
+        const marqueeContainer = document.getElementById('marquee-container');
+        const marqueeTextContent = document.getElementById('marquee-text-content');
         
         // --- 欄位標籤對應 ---
         const customerFieldLabels = { name: '姓名', identity: '身分證', dob: '生日', mobile: '手機', home_phone: '住家電話', household_address: '戶籍地址', current_address: '現居地址', residence_status: '居住狀況', company: '公司', job_title: '職稱', salary: '薪資 (月薪)', seniority: '年資', company_address: '公司地址', company_phone: '公司電話', insurance: '投保情況', special_conditions: '特殊狀況', contact1_name: '聯絡人1-姓名', contact1_relationship: '聯絡人1-關係', contact1_phone: '聯絡人1-電話', contact2_name: '聯絡人2-姓名', contact2_relationship: '聯絡人2-關係', contact2_phone: '聯絡人2-電話', scribe_loan: '代書結清', pawnshop_loan: '當鋪結清', small_loan: '小額結清', loan_amount: '申貸金額 (元)', fund_use: '資金用途' };
         const loanFieldLabels = { loan_customer_id: '客戶姓名', loan_apply_amount: '貸款金額', loan_date: '貸款日期', loan_interest_rate: '貸款利率', loan_interest_period: '利率單位', loan_mode: '貸款模式', calc_method: '計算公式', repayment_cycle: '還款週期', repayment_days: '還款天數', loan_term: '貸款期數', loan_reason: '貸款原因', loan_status: '貸款狀態', principal_reduction: '還本降息', loan_notes: '備註', periodic_payment: '每期應繳金額' };
 
         // --- 認證狀態監聽 ---
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, async (user) => {
+            // 清理舊的監聽器
+            if (customerUnsubscribe) customerUnsubscribe();
+            if (loanUnsubscribe) loanUnsubscribe();
+            if (settingsUnsubscribe) settingsUnsubscribe();
+            if (usersUnsubscribe) usersUnsubscribe();
+            if (marqueeUnsubscribe) marqueeUnsubscribe();
+            expiryReminder.classList.add('hidden'); // 預設隱藏提醒
+
             if (user) {
                 userId = user.uid;
+                const userDocRef = doc(db, 'all_users', userId);
+                const userDocSnap = await getDoc(userDocRef);
+
+                // 權限檢查
+                if (!user.isAnonymous && user.email !== ADMIN_EMAIL && userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+
+                    if (userData.accessEndDate) {
+                        const endDate = new Date(userData.accessEndDate);
+                        // 權限到期檢查
+                        if (endDate < today) {
+                            isExpiredSignOut = true; // 設定權限到期標記
+                            await signOut(auth);
+                            return; // 結束此函數執行，等待下一次 onAuthStateChanged 觸發
+                        }
+                        // 到期提醒檢查
+                        const timeDiff = endDate.getTime() - today.getTime();
+                        const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                        if (daysDiff <= 7) {
+                            expiryReminder.textContent = `您的帳號權限將於 ${userData.accessEndDate} 到期，請聯繫管理員。`;
+                            expiryReminder.classList.remove('hidden');
+                        }
+                    }
+                }
+                
                 authView.classList.add('hidden');
                 mainAppView.classList.remove('hidden');
-                userInfo.textContent = `使用者 ID: ${user.uid}`;
+                userInfo.textContent = user.isAnonymous ? `訪客 ID: ${user.uid}` : `使用者: ${user.email}`;
+                
+                // 顯示管理員分頁和設定
+                const isAdmin = user.email === ADMIN_EMAIL;
+                adminTabBtn.classList.toggle('hidden', !isAdmin);
+                adminSettingsSection.classList.toggle('hidden', !isAdmin);
+
+
                 initializeAppLogic();
             } else {
                 userId = null;
                 mainAppView.classList.add('hidden');
                 authView.classList.remove('hidden');
-                authStatus.textContent = "請登入以繼續";
-                anonymousLoginBtn.disabled = false;
+                
+                if (isExpiredSignOut) {
+                    authStatus.textContent = "您已無權限登入，請聯繫管理員";
+                    isExpiredSignOut = false; // 重置標記
+                } else {
+                    authStatus.textContent = "";
+                }
+                
                 loader.classList.add('hidden');
-                if (customerUnsubscribe) customerUnsubscribe();
-                if (loanUnsubscribe) loanUnsubscribe();
-                if (settingsUnsubscribe) settingsUnsubscribe();
             }
         });
 
-        // --- 登入/登出事件 ---
-        anonymousLoginBtn.addEventListener('click', async () => {
-            anonymousLoginBtn.disabled = true;
+        // --- 登入/註冊事件 ---
+        loginTabBtn.addEventListener('click', () => {
+            loginTabBtn.classList.add('active');
+            registerTabBtn.classList.remove('active');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            authStatus.textContent = '';
+        });
+
+        registerTabBtn.addEventListener('click', () => {
+            registerTabBtn.classList.add('active');
+            loginTabBtn.classList.remove('active');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+            authStatus.textContent = '';
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             loader.classList.remove('hidden');
-            authStatus.textContent = "登入中...";
+            authStatus.textContent = '';
+            const email = e.target['login-email'].value;
+            const password = e.target['login-password'].value;
             try {
-                await signInAnonymously(auth);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                console.error("匿名登入失敗:", error);
-                authStatus.textContent = `登入失敗: ${error.message}`;
-                anonymousLoginBtn.disabled = false;
+                console.error("登入失敗:", error.code);
+                authStatus.textContent = '登入失敗：帳號或密碼錯誤。';
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+        
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loader.classList.remove('hidden');
+            authStatus.textContent = '';
+            const email = e.target['register-email'].value;
+            const password = e.target['register-password'].value;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 計算預設到期日 (註冊日 + 1天)
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const year = tomorrow.getFullYear();
+                const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                const day = String(tomorrow.getDate()).padStart(2, '0');
+                const defaultEndDate = `${year}-${month}-${day}`;
+
+                // 在 all_users 集合中建立使用者資料
+                const userDocRef = doc(db, 'all_users', user.uid);
+                await setDoc(userDocRef, {
+                    email: user.email,
+                    uid: user.uid,
+                    registrationDate: serverTimestamp(),
+                    accessEndDate: defaultEndDate 
+                });
+
+            } catch (error) {
+                console.error("註冊失敗:", error.code);
+                if (error.code === 'auth/weak-password') {
+                    authStatus.textContent = '註冊失敗：密碼強度不足，至少需 6 位數。';
+                } else if (error.code === 'auth/email-already-in-use') {
+                    authStatus.textContent = '註冊失敗：此電子信箱已被註冊。';
+                } else {
+                    authStatus.textContent = `註冊失敗：${error.message}`;
+                }
+            } finally {
                 loader.classList.add('hidden');
             }
         });
@@ -343,6 +567,9 @@
                         mainTitle.textContent = settings.companyName;
                         companyNameInput.value = settings.companyName;
                     }
+                } else {
+                    mainTitle.textContent = "貸款客戶管理系統"; // Reset to default if no settings
+                    companyNameInput.value = ""; // Clear input if no settings
                 }
             });
 
@@ -360,6 +587,34 @@
                 loans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderLoanList();
             });
+
+            // 監聽跑馬燈
+            const marqueeDocRef = doc(db, 'globals', 'marquee');
+            marqueeUnsubscribe = onSnapshot(marqueeDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const marqueeData = docSnap.data();
+                    if (marqueeData.text && marqueeData.text.trim() !== '') {
+                        marqueeTextContent.textContent = marqueeData.text;
+                        marqueeContainer.classList.remove('hidden');
+                        if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                            marqueeTextInput.value = marqueeData.text;
+                        }
+                    } else {
+                        marqueeContainer.classList.add('hidden');
+                    }
+                } else {
+                    marqueeContainer.classList.add('hidden');
+                }
+            });
+
+            // 如果是管理員，監聽所有使用者資料
+            if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                const allUsersColRef = collection(db, 'all_users');
+                usersUnsubscribe = onSnapshot(query(allUsersColRef), (snapshot) => {
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderUserList();
+                });
+            }
         }
 
         // --- 通用函數 ---
@@ -371,8 +626,8 @@
 
         // --- 分頁管理 ---
         function switchTab(activeTab) {
-            [customerTabContent, loanTabContent, settingsTabContent].forEach(c => c.classList.remove('active'));
-            [customerTabBtn, loanTabBtn, settingsTabBtn].forEach(b => b.classList.remove('active'));
+            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent].forEach(c => c.classList.remove('active'));
+            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn].forEach(b => b.classList.remove('active'));
             
             if (activeTab === 'customer') {
                 customerTabContent.classList.add('active');
@@ -388,11 +643,16 @@
                 settingsTabContent.classList.add('active');
                 settingsTabBtn.classList.add('active');
                 headerSubtitle.textContent = '系統設定';
+            } else if (activeTab === 'admin') {
+                adminTabContent.classList.add('active');
+                adminTabBtn.classList.add('active');
+                headerSubtitle.textContent = '使用者管理';
             }
         }
         customerTabBtn.addEventListener('click', () => switchTab('customer'));
         loanTabBtn.addEventListener('click', () => switchTab('loan'));
         settingsTabBtn.addEventListener('click', () => switchTab('settings'));
+        adminTabBtn.addEventListener('click', () => switchTab('admin'));
 
         // --- 設定管理 ---
         settingsForm.addEventListener('submit', async (e) => {
@@ -410,6 +670,20 @@
             }
         });
 
+        marqueeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newText = marqueeTextInput.value;
+            const marqueeDocRef = doc(db, 'globals', 'marquee');
+            try {
+                await setDoc(marqueeDocRef, { text: newText });
+                alert('跑馬燈已更新！');
+            } catch (error) {
+                console.error("更新跑馬燈失敗:", error);
+                alert("更新失敗，請稍後再試。");
+            }
+        });
+
+
         // --- 客戶管理邏輯 ---
         function renderCustomerList() {
             customerTableBody.innerHTML = '';
@@ -419,7 +693,7 @@
                 customers.forEach(c => {
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50';
-                    row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${c.name||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.mobile||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.loan_amount? 'NT$ '+parseInt(c.loan_amount).toLocaleString():'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button data-id="${c.id}" class="view-customer-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button></td>`;
+                    row.innerHTML = `<td class="px-6 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${c.name||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.mobile||'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${c.loan_amount? 'NT$ '+parseInt(c.loan_amount).toLocaleString():'N/A'}</div></td><td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button data-id="${c.id}" class="view-customer-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button><button data-id="${c.id}" class="edit-customer-btn text-blue-600 hover:text-blue-900 ml-4">編輯</button></td>`;
                     customerTableBody.appendChild(row);
                 });
             }
@@ -437,28 +711,65 @@
             headerSubtitle.textContent = `客戶詳細資料: ${customer.name}`;
             switchView(customerDetailsView, customerTabContent);
         }
+        function showCustomerFormForEdit(customerId) {
+            currentEditingCustomerId = customerId;
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) return;
+
+            // 填充表單
+            for (const key in customer) {
+                if (customerForm.elements[key]) {
+                    customerForm.elements[key].value = customer[key];
+                }
+            }
+            
+            // 更新UI
+            customerFormTitle.textContent = '編輯客戶資料';
+            customerFormSubmitBtn.textContent = '更新資料';
+            customerFormSubmitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            customerFormSubmitBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+            headerSubtitle.textContent = `正在編輯: ${customer.name}`;
+            switchView(customerFormView, customerTabContent);
+        }
         showCustomerFormBtn.addEventListener('click', () => {
-            headerSubtitle.textContent = '新增客戶資料';
+            currentEditingCustomerId = null; // 確保是新增模式
             customerForm.reset();
+            customerFormTitle.textContent = '新增客戶資料';
+            customerFormSubmitBtn.textContent = '儲存客戶資料';
+            customerFormSubmitBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+            customerFormSubmitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            headerSubtitle.textContent = '新增客戶資料';
             switchView(customerFormView, customerTabContent);
         });
         customerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!userId) return;
             const formData = new FormData(e.target);
-            const newCustomer = Object.fromEntries(formData.entries());
+            const customerData = Object.fromEntries(formData.entries());
+            
             try {
-                const customerColRef = collection(db, 'users', userId, 'customers');
-                await addDoc(customerColRef, newCustomer);
+                if (currentEditingCustomerId) {
+                    // 更新模式
+                    const customerDocRef = doc(db, 'users', userId, 'customers', currentEditingCustomerId);
+                    await updateDoc(customerDocRef, customerData);
+                } else {
+                    // 新增模式
+                    const customerColRef = collection(db, 'users', userId, 'customers');
+                    await addDoc(customerColRef, customerData);
+                }
+                currentEditingCustomerId = null; // 重置
                 switchTab('customer');
             } catch (error) {
-                console.error("新增客戶失敗:", error);
-                alert("新增客戶失敗，請稍後再試。");
+                console.error("儲存客戶失敗:", error);
+                alert("儲存客戶失敗，請稍後再試。");
             }
         });
         customerTableBody.addEventListener('click', e => {
             if (e.target.classList.contains('view-customer-details-btn')) {
                 renderCustomerDetails(e.target.dataset.id);
+            }
+            if (e.target.classList.contains('edit-customer-btn')) {
+                showCustomerFormForEdit(e.target.dataset.id);
             }
         });
 
@@ -542,6 +853,12 @@
                  if (key !== 'id' && key !== 'transactions' && value !== undefined) {
                     let displayValue = value;
                     let label = loanFieldLabels[key] || key;
+                    if (key === 'loan_status') { // Make status editable
+                        const options = ['審核中', '已核准', '已駁回', '已清償'];
+                        const selectHTML = `<select id="loan-status-editor" data-id="${loan.id}" class="w-full p-1 border border-gray-300 rounded-md">${options.map(opt => `<option value="${opt}" ${opt === value ? 'selected' : ''}>${opt}</option>`).join('')}</select>`;
+                        loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3 items-center"><p class="col-span-1 font-semibold text-gray-600">${label}</p><div class="col-span-2">${selectHTML}</div></div>`;
+                        continue;
+                    }
                     if (key === 'periodic_payment') {
                         const dynamicLabel = loan.principal_reduction ? '<span class="ml-2 text-xs text-blue-500">(還本降息後更新)</span>' : '';
                         loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words font-bold text-red-600">${`NT$ ${parseInt(value).toLocaleString()}`}${dynamicLabel}</p></div>`;
@@ -627,6 +944,21 @@
                 renderLoanDetails(e.target.dataset.id, true);
             }
         });
+        loanDetailsContent.addEventListener('change', async (e) => {
+            if (e.target.id === 'loan-status-editor') {
+                const loanId = e.target.dataset.id;
+                const newStatus = e.target.value;
+                if (!userId || !loanId) return;
+                const loanDocRef = doc(db, 'users', userId, 'loans', loanId);
+                try {
+                    await updateDoc(loanDocRef, { loan_status: newStatus });
+                    // No alert needed, onSnapshot will refresh the UI
+                } catch (error) {
+                    console.error("更新狀態失敗:", error);
+                    alert("更新狀態失敗，請稍後再試。");
+                }
+            }
+        });
 
         // --- 交易紀錄邏輯 ---
         showTransactionFormBtn.addEventListener('click', () => {
@@ -674,6 +1006,48 @@
             
             addTransactionForm.reset();
             addTransactionForm.classList.add('hidden');
+        });
+
+        // --- 管理員邏輯 ---
+        function renderUserList() {
+            userListTableBody.innerHTML = '';
+            if (allUsers.length === 0) {
+                userListTableBody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">尚無使用者註冊</td></tr>`;
+                return;
+            }
+            allUsers.forEach(user => {
+                const regDate = user.registrationDate?.toDate().toLocaleDateString() || 'N/A';
+                const endDate = user.accessEndDate || '';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-gray-800">${user.email}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${regDate}</td>
+                    <td class="px-4 py-3">
+                        <input type="date" value="${endDate}" data-id="${user.id}" class="user-access-date-input w-full p-1 border border-gray-300 rounded-md">
+                    </td>
+                    <td class="px-4 py-3">
+                        <button data-id="${user.id}" class="update-user-access-btn px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">更新</button>
+                    </td>
+                `;
+                userListTableBody.appendChild(row);
+            });
+        }
+
+        userListTableBody.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('update-user-access-btn')) {
+                const userIdToUpdate = e.target.dataset.id;
+                const dateInput = document.querySelector(`.user-access-date-input[data-id="${userIdToUpdate}"]`);
+                const newEndDate = dateInput.value || null;
+
+                const userDocRef = doc(db, 'all_users', userIdToUpdate);
+                try {
+                    await updateDoc(userDocRef, { accessEndDate: newEndDate });
+                    alert(`使用者 ${userIdToUpdate} 的權限已更新。`);
+                } catch (error) {
+                    console.error("更新權限失敗:", error);
+                    alert("更新權限失敗，請稍後再試。");
+                }
+            }
         });
 
         // --- 通用返回按鈕 ---
