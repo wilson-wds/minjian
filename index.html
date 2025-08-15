@@ -106,6 +106,21 @@
         .toast.success { background-color: #10B981; } /* green-500 */
         .toast.error { background-color: #EF4444; } /* red-500 */
         .toast.info { background-color: #3B82F6; } /* blue-500 */
+        
+        /* 聊天室樣式 */
+        #chat-messages-container {
+            scroll-behavior: smooth;
+        }
+        .chat-bubble-sent {
+            background-color: #3B82F6; /* blue-500 */
+            color: white;
+            align-self: flex-end;
+        }
+        .chat-bubble-received {
+            background-color: #E5E7EB; /* gray-200 */
+            color: #1F2937; /* gray-800 */
+            align-self: flex-start;
+        }
 
         /* 列印樣式 */
         @media print {
@@ -235,6 +250,9 @@
                     </button>
                     <button id="loanTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         貸款資料
+                    </button>
+                    <button id="chatTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        訊息
                     </button>
                     <button id="settingsTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         設定
@@ -396,6 +414,42 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 訊息分頁內容 -->
+                <div id="chatTabContent" class="view">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[70vh]">
+                        <!-- 使用者列表 -->
+                        <div class="md:col-span-1 bg-white p-4 rounded-2xl shadow-lg flex flex-col">
+                            <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-3">選擇對話使用者</h2>
+                            <div class="overflow-y-auto">
+                                <ul id="chat-user-list" class="divide-y divide-gray-200">
+                                    <!-- User list will be rendered here -->
+                                </ul>
+                            </div>
+                        </div>
+                        <!-- 聊天室 -->
+                        <div id="chat-room-container" class="md:col-span-2 bg-white rounded-2xl shadow-lg flex flex-col h-full hidden">
+                            <div class="p-4 border-b flex items-center">
+                                <button id="back-to-user-list-btn" class="md:hidden mr-4 p-2 rounded-full hover:bg-gray-100">
+                                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <h2 id="chat-partner-name" class="text-lg font-semibold text-gray-800"></h2>
+                            </div>
+                            <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
+                                <!-- Messages will be rendered here -->
+                            </div>
+                            <form id="chat-form" class="p-4 border-t">
+                                <div class="flex items-center">
+                                    <input type="text" id="chat-message-input" placeholder="輸入訊息..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" autocomplete="off">
+                                    <button type="submit" class="ml-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold">傳送</button>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="chat-placeholder" class="md:col-span-2 bg-white rounded-2xl shadow-lg flex items-center justify-center h-full">
+                            <p class="text-gray-500">請從左側選擇一位使用者開始對話</p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- 設定分頁內容 -->
                 <div id="settingsTabContent" class="view">
@@ -500,8 +554,17 @@
                                 </p>
                             </div>
 
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">4. 訊息</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - **選擇對象：** 在「訊息」分頁，您可以看到系統中所有其他使用者的列表。<br>
+                                    - **開始對話：** 點擊任一使用者即可開啟與他的私人對話視窗。<br>
+                                    - **即時傳訊：** 您傳送的訊息會即時顯示在對方與您的畫面中。
+                                </p>
+                            </div>
+
                              <div>
-                                <h3 class="text-lg font-semibold text-gray-700">4. 設定</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">5. 設定</h3>
                                 <p class="text-gray-600 mt-1 pl-4">
                                     - **公司名稱：** 您可以在此設定專屬於您的系統標題，此設定將與您的帳號綁定。
                                 </p>
@@ -522,7 +585,7 @@
         // 引入 Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase 設定 (請務必從您的 Firebase 控制台複製完整設定) ---
         const firebaseConfig = {
@@ -547,6 +610,8 @@
         let currentEditingCustomerId = null; 
         let itemToDelete = { id: null, type: null };
         let currentAnnouncementTimestamp = null;
+        let activeChatPartner = { id: null, email: null };
+        let chatUnsubscribe = null;
         let userId = null;
         let customerUnsubscribe = null;
         let loanUnsubscribe = null;
@@ -569,8 +634,8 @@
         const loader = document.getElementById('loader'), authStatus = document.getElementById('auth-status');
         const mainTitle = document.getElementById('main-title'), headerSubtitle = document.getElementById('header-subtitle'), userInfo = document.getElementById('user-info'), logoutBtn = document.getElementById('logout-btn');
         const expiryReminder = document.getElementById('expiry-reminder');
-        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn'), helpTabBtn = document.getElementById('helpTabBtn');
-        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent'), helpTabContent = document.getElementById('helpTabContent');
+        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), chatTabBtn = document.getElementById('chatTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn'), helpTabBtn = document.getElementById('helpTabBtn');
+        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), chatTabContent = document.getElementById('chatTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent'), helpTabContent = document.getElementById('helpTabContent');
         const customerListView = document.getElementById('customerListView'), customerFormView = document.getElementById('customerFormView'), customerDetailsView = document.getElementById('customerDetailsView');
         const showCustomerFormBtn = document.getElementById('showCustomerFormBtn'), customerForm = document.getElementById('customerForm'), customerTableBody = document.getElementById('customerTableBody'), customerDetailsContent = document.getElementById('customerDetailsContent');
         const customerFormTitle = document.getElementById('customer-form-title'), customerFormSubmitBtn = document.getElementById('customer-form-submit-btn'); 
@@ -602,6 +667,14 @@
         const desiredPaymentAmountInput = document.getElementById('desired_payment_amount');
         const loanInterestRateInput = document.getElementById('loan_interest_rate');
         const loanInterestPeriodSelect = document.getElementById('loan_interest_period');
+        const chatUserList = document.getElementById('chat-user-list');
+        const chatRoomContainer = document.getElementById('chat-room-container');
+        const chatPlaceholder = document.getElementById('chat-placeholder');
+        const chatPartnerName = document.getElementById('chat-partner-name');
+        const chatMessagesContainer = document.getElementById('chat-messages-container');
+        const chatForm = document.getElementById('chat-form');
+        const chatMessageInput = document.getElementById('chat-message-input');
+        const backToUserListBtn = document.getElementById('back-to-user-list-btn');
         
         // --- 欄位標籤對應 ---
         const customerFieldLabels = { name: '姓名', identity: '身分證', dob: '生日', mobile: '手機', home_phone: '住家電話', household_address: '戶籍地址', current_address: '現居地址', residence_status: '居住狀況', company: '公司', job_title: '職稱', salary: '薪資 (月薪)', seniority: '年資', company_address: '公司地址', company_phone: '公司電話', insurance: '投保情況', special_conditions: '特殊狀況', contact1_name: '聯絡人1-姓名', contact1_relationship: '聯絡人1-關係', contact1_phone: '聯絡人1-電話', contact2_name: '聯絡人2-姓名', contact2_relationship: '聯絡人2-關係', contact2_phone: '聯絡人2-電話', scribe_loan: '代書結清', pawnshop_loan: '當鋪結清', small_loan: '小額結清', loan_amount: '申貸金額 (元)', fund_use: '資金用途' };
@@ -617,6 +690,7 @@
             if (usersUnsubscribe) usersUnsubscribe();
             if (marqueeUnsubscribe) marqueeUnsubscribe();
             if (announcementUnsubscribe) announcementUnsubscribe();
+            if (chatUnsubscribe) chatUnsubscribe();
             expiryReminder.classList.add('hidden'); // 預設隱藏提醒
 
             if (user) {
@@ -869,17 +943,18 @@
                 console.error("公告資料監聽失敗:", error);
             });
 
-            // 如果是管理員，監聽所有使用者資料
-            if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
-                const allUsersColRef = collection(db, 'all_users');
-                usersUnsubscribe = onSnapshot(query(allUsersColRef), (snapshot) => {
-                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            // 監聽所有使用者資料 (for chat)
+            const allUsersColRef = collection(db, 'all_users');
+            usersUnsubscribe = onSnapshot(query(allUsersColRef), (snapshot) => {
+                allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
                     renderUserList();
-                }, (error) => {
-                    console.error("使用者列表監聽失敗:", error);
-                    showToast("無法讀取使用者列表，請檢查管理員權限設定。", "error");
-                });
-            }
+                }
+                renderChatUserList();
+            }, (error) => {
+                console.error("使用者列表監聽失敗:", error);
+                showToast("無法讀取使用者列表，請檢查權限設定。", "error");
+            });
         }
 
         // --- 通用函數 ---
@@ -907,8 +982,8 @@
 
         // --- 分頁管理 ---
         function switchTab(activeTab) {
-            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent, helpTabContent].forEach(c => c.classList.remove('active'));
-            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn, helpTabBtn].forEach(b => b.classList.remove('active'));
+            [customerTabContent, loanTabContent, chatTabContent, settingsTabContent, adminTabContent, helpTabContent].forEach(c => c.classList.remove('active'));
+            [customerTabBtn, loanTabBtn, chatTabBtn, settingsTabBtn, adminTabBtn, helpTabBtn].forEach(b => b.classList.remove('active'));
             
             if (activeTab === 'customer') {
                 customerTabContent.classList.add('active');
@@ -920,6 +995,10 @@
                 loanTabBtn.classList.add('active');
                 headerSubtitle.textContent = '貸款列表';
                 switchView(loanListView, loanTabContent);
+            } else if (activeTab === 'chat') {
+                chatTabContent.classList.add('active');
+                chatTabBtn.classList.add('active');
+                headerSubtitle.textContent = '訊息';
             } else if (activeTab === 'settings') {
                 settingsTabContent.classList.add('active');
                 settingsTabBtn.classList.add('active');
@@ -936,6 +1015,7 @@
         }
         customerTabBtn.addEventListener('click', () => switchTab('customer'));
         loanTabBtn.addEventListener('click', () => switchTab('loan'));
+        chatTabBtn.addEventListener('click', () => switchTab('chat'));
         settingsTabBtn.addEventListener('click', () => switchTab('settings'));
         adminTabBtn.addEventListener('click', () => switchTab('admin'));
         helpTabBtn.addEventListener('click', () => switchTab('help'));
@@ -1485,6 +1565,128 @@
             announcementModal.classList.add('hidden');
             if (currentAnnouncementTimestamp) {
                 localStorage.setItem('lastAnnouncementTimestamp', currentAnnouncementTimestamp);
+            }
+        });
+        
+        // --- 聊天邏輯 ---
+        function renderChatUserList() {
+            chatUserList.innerHTML = '';
+            const currentUserIsAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
+            
+            let usersToShow;
+            if (currentUserIsAdmin) {
+                // 管理員看見除了自己以外的所有人
+                usersToShow = allUsers.filter(u => u.id !== userId);
+            } else {
+                // 一般使用者只看見管理員
+                usersToShow = allUsers.filter(u => u.email === ADMIN_EMAIL);
+            }
+
+            if (usersToShow.length === 0) {
+                if (currentUserIsAdmin) {
+                    chatUserList.innerHTML = `<li class="p-4 text-center text-gray-500">目前沒有其他使用者</li>`;
+                } else {
+                    chatUserList.innerHTML = `<li class="p-4 text-center text-gray-500">找不到管理員，無法對話</li>`;
+                }
+            } else {
+                usersToShow.forEach(user => {
+                    const li = document.createElement('li');
+                    li.className = 'p-4 hover:bg-gray-50 cursor-pointer flex justify-between items-center';
+                    li.dataset.id = user.id;
+                    li.dataset.email = user.email;
+                    
+                    const emailSpan = document.createElement('span');
+                    emailSpan.textContent = user.email;
+                    li.appendChild(emailSpan);
+
+                    if (user.email === ADMIN_EMAIL) {
+                        const adminBadge = document.createElement('span');
+                        adminBadge.className = 'text-xs font-semibold text-white bg-blue-500 px-2 py-1 rounded-full';
+                        adminBadge.textContent = '管理員';
+                        li.appendChild(adminBadge);
+                    }
+                    chatUserList.appendChild(li);
+                });
+            }
+        }
+
+        chatUserList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if (li) {
+                const partnerId = li.dataset.id;
+                const partnerEmail = li.dataset.email;
+                openChatRoom(partnerId, partnerEmail);
+            }
+        });
+
+        function openChatRoom(partnerId, partnerEmail) {
+            if (chatUnsubscribe) chatUnsubscribe(); // Unsubscribe from previous chat
+
+            activeChatPartner = { id: partnerId, email: partnerEmail };
+            chatPartnerName.textContent = partnerEmail;
+
+            chatRoomContainer.classList.remove('hidden');
+            chatPlaceholder.classList.add('hidden');
+
+            const uids = [userId, partnerId].sort();
+            const chatId = uids.join('_');
+            
+            const messagesColRef = collection(db, 'chats', chatId, 'messages');
+            const messagesQuery = query(messagesColRef, orderBy('timestamp', 'asc'));
+
+            chatUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+                const messages = snapshot.docs.map(doc => doc.data());
+                renderMessages(messages);
+            }, (error) => {
+                console.error("訊息監聽失敗:", error);
+                showToast("無法讀取訊息，請檢查權限。", "error");
+            });
+        }
+
+        function renderMessages(messages) {
+            chatMessagesContainer.innerHTML = '';
+            messages.forEach(msg => {
+                const bubble = document.createElement('div');
+                bubble.className = 'px-4 py-2 rounded-lg max-w-xs lg:max-w-md break-words';
+                bubble.textContent = msg.text;
+                if (msg.senderId === userId) {
+                    bubble.classList.add('chat-bubble-sent');
+                } else {
+                    bubble.classList.add('chat-bubble-received');
+                }
+                chatMessagesContainer.appendChild(bubble);
+            });
+            chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatMessageInput.value.trim();
+            if (!text || !activeChatPartner.id) return;
+
+            const uids = [userId, activeChatPartner.id].sort();
+            const chatId = uids.join('_');
+            
+            const messagesColRef = collection(db, 'chats', chatId, 'messages');
+            const chatDocRef = doc(db, 'chats', chatId);
+
+            try {
+                await addDoc(messagesColRef, {
+                    text: text,
+                    senderId: userId,
+                    receiverId: activeChatPartner.id,
+                    timestamp: serverTimestamp()
+                });
+                // Update chat doc for potential future use (e.g., last message preview)
+                await setDoc(chatDocRef, { 
+                    participants: uids,
+                    lastMessageTimestamp: serverTimestamp()
+                }, { merge: true });
+                
+                chatMessageInput.value = '';
+            } catch (error) {
+                console.error("傳送訊息失敗:", error);
+                showToast("訊息傳送失敗。", "error");
             }
         });
 
