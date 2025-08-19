@@ -6,6 +6,8 @@
     <title>貸款客戶管理系統</title>
     <!-- 引入 Tailwind CSS 以進行快速美化 -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Chart.js 用於繪製圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* 使用 Inter 字體 */
@@ -219,8 +221,8 @@
             <!-- 頁面標題 -->
             <header class="mb-8">
                 <div class="flex justify-between items-center">
-                     <h1 id="main-title" class="text-3xl font-bold text-gray-900">貸款客戶管理系統</h1>
-                     <button id="logout-btn" class="text-sm text-gray-500 hover:text-red-500 transition">登出</button>
+                      <h1 id="main-title" class="text-3xl font-bold text-gray-900">貸款客戶管理系統</h1>
+                      <button id="logout-btn" class="text-sm text-gray-500 hover:text-red-500 transition">登出</button>
                 </div>
                 <p id="header-subtitle" class="text-gray-500 mt-2">客戶列表</p>
                 <p id="user-info" class="text-xs text-gray-400 mt-1"></p>
@@ -235,6 +237,9 @@
                     </button>
                     <button id="loanTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         貸款資料
+                    </button>
+                     <button id="analyticsTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                        數據分析
                     </button>
                     <button id="settingsTabBtn" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:border-gray-300 hover:text-gray-700">
                         設定
@@ -261,9 +266,14 @@
                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                                 </div>
                             </div>
-                            <button id="showCustomerFormBtn" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
-                                ＋ 新增客戶資料
-                            </button>
+                             <div class="flex items-center gap-2">
+                                <button id="exportCustomersBtn" class="w-full sm:w-auto px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
+                                    匯出 CSV
+                                </button>
+                                <button id="showCustomerFormBtn" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
+                                    ＋ 新增客戶
+                                </button>
+                            </div>
                         </div>
                         <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
                             <div class="overflow-x-auto">
@@ -317,9 +327,14 @@
                                     <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
                                 </div>
                             </div>
-                            <button id="showLoanFormBtn" class="w-full sm:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
-                                ＋ 建立新貸款
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button id="exportLoansBtn" class="w-full sm:w-auto px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
+                                    匯出 CSV
+                                </button>
+                                <button id="showLoanFormBtn" class="w-full sm:w-auto px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition duration-200 shadow-md flex-shrink-0">
+                                    ＋ 建立新貸款
+                                </button>
+                            </div>
                         </div>
                         <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
                             <div class="overflow-x-auto">
@@ -397,6 +412,50 @@
                     </div>
                 </div>
                 
+                <!-- 數據分析分頁內容 -->
+                <div id="analyticsTabContent" class="view">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Summary Cards -->
+                        <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">總客戶數</p>
+                                <p id="totalCustomers" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            </div>
+                        </div>
+                         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">總貸款筆數</p>
+                                <p id="totalLoans" class="text-3xl font-bold text-gray-900">0</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                               <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                        </div>
+                         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">總貸款金額</p>
+                                <p id="totalLoanAmount" class="text-3xl font-bold text-gray-900">NT$ 0</p>
+                            </div>
+                             <div class="bg-yellow-100 p-3 rounded-full">
+                                <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            </div>
+                        </div>
+
+                        <!-- Charts -->
+                        <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">貸款狀態分佈</h3>
+                            <canvas id="loanStatusChart"></canvas>
+                        </div>
+                        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">每月貸款總額</h3>
+                            <canvas id="monthlyLoanAmountChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 設定分頁內容 -->
                 <div id="settingsTabContent" class="view">
                     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-lg max-w-lg mx-auto">
@@ -479,10 +538,11 @@
                                 <h3 class="text-lg font-semibold text-gray-700">2. 客戶管理</h3>
                                 <p class="text-gray-600 mt-1 pl-4">
                                     - **搜尋客戶：** 在列表上方，您可以輸入客戶姓名或手機號碼來即時篩選列表。<br>
-                                    - **新增客戶：** 在「客戶管理」分頁，點擊右上角的「＋ 新增客戶資料」按鈕，填寫完畢後儲存。<br>
+                                    - **新增客戶：** 在「客戶管理」分頁，點擊右上角的「＋ 新增客戶」按鈕，填寫完畢後儲存。<br>
                                     - **編輯客戶：** 在客戶列表中，點擊對應客戶右側的「編輯」按鈕，即可修改並更新資料。<br>
                                     - **查看明細：** 點擊「查看明細」按鈕，可以瀏覽該客戶的所有詳細資訊。<br>
-                                    - **刪除客戶：** 點擊「刪除」按鈕可移除客戶資料。注意：若該客戶尚有關聯的貸款資料，則無法刪除。
+                                    - **刪除客戶：** 點擊「刪除」按鈕可移除客戶資料。注意：若該客戶尚有關聯的貸款資料，則無法刪除。<br>
+                                    - **匯出 CSV：** 點擊「匯出 CSV」按鈕，可將目前列表中的所有客戶資料下載為 .csv 檔案。
                                 </p>
                             </div>
 
@@ -496,12 +556,20 @@
                                     - **計算公式：** 建立貸款時可選擇「標準PMT公式」（本利攤還）或「簡易利息計算」（本金/期數 + 本金*利率）。<br>
                                     - **還本降息：** 若勾選此項，每次新增帶有「繳款本金」的交易後，系統會自動以剩餘本金重算下一期的應繳金額（僅限PMT公式）。<br>
                                     - **新增交易紀錄：** 在貸款明細頁面，您可以為該筆貸款新增還款紀錄，系統會自動統計已繳金額與剩餘本金。<br>
-                                    - **編輯狀態：** 在貸款明細頁面，您可以隨時點擊「貸款狀態」的下拉選單來更新目前進度。
+                                    - **編輯狀態：** 在貸款明細頁面，您可以隨時點擊「貸款狀態」的下拉選單來更新目前進度。<br>
+                                     - **匯出 CSV：** 點擊「匯出 CSV」按鈕，可將目前列表中的所有貸款資料下載為 .csv 檔案。
+                                </p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-700">4. 數據分析</h3>
+                                <p class="text-gray-600 mt-1 pl-4">
+                                    - 此頁面會顯示目前的業務概況，包含客戶數、貸款筆數、總金額，以及貸款狀態分佈和每月業績趨勢圖表。所有圖表都會隨著您的資料更新而即時變動。
                                 </p>
                             </div>
 
                              <div>
-                                <h3 class="text-lg font-semibold text-gray-700">4. 設定</h3>
+                                <h3 class="text-lg font-semibold text-gray-700">5. 設定</h3>
                                 <p class="text-gray-600 mt-1 pl-4">
                                     - **公司名稱：** 您可以在此設定專屬於您的系統標題，此設定將與您的帳號綁定。
                                 </p>
@@ -555,6 +623,9 @@
         let marqueeUnsubscribe = null;
         let announcementUnsubscribe = null;
         let isExpiredSignOut = false;
+        let loanStatusChartInstance = null;
+        let monthlyLoanAmountChartInstance = null;
+
 
         // --- DOM 元素 ---
         const toastContainer = document.getElementById('toast-container');
@@ -569,8 +640,8 @@
         const loader = document.getElementById('loader'), authStatus = document.getElementById('auth-status');
         const mainTitle = document.getElementById('main-title'), headerSubtitle = document.getElementById('header-subtitle'), userInfo = document.getElementById('user-info'), logoutBtn = document.getElementById('logout-btn');
         const expiryReminder = document.getElementById('expiry-reminder');
-        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn'), helpTabBtn = document.getElementById('helpTabBtn');
-        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent'), helpTabContent = document.getElementById('helpTabContent');
+        const customerTabBtn = document.getElementById('customerTabBtn'), loanTabBtn = document.getElementById('loanTabBtn'), settingsTabBtn = document.getElementById('settingsTabBtn'), adminTabBtn = document.getElementById('adminTabBtn'), helpTabBtn = document.getElementById('helpTabBtn'), analyticsTabBtn = document.getElementById('analyticsTabBtn');
+        const customerTabContent = document.getElementById('customerTabContent'), loanTabContent = document.getElementById('loanTabContent'), settingsTabContent = document.getElementById('settingsTabContent'), adminTabContent = document.getElementById('adminTabContent'), helpTabContent = document.getElementById('helpTabContent'), analyticsTabContent = document.getElementById('analyticsTabContent');
         const customerListView = document.getElementById('customerListView'), customerFormView = document.getElementById('customerFormView'), customerDetailsView = document.getElementById('customerDetailsView');
         const showCustomerFormBtn = document.getElementById('showCustomerFormBtn'), customerForm = document.getElementById('customerForm'), customerTableBody = document.getElementById('customerTableBody'), customerDetailsContent = document.getElementById('customerDetailsContent');
         const customerFormTitle = document.getElementById('customer-form-title'), customerFormSubmitBtn = document.getElementById('customer-form-submit-btn'); 
@@ -602,6 +673,8 @@
         const desiredPaymentAmountInput = document.getElementById('desired_payment_amount');
         const loanInterestRateInput = document.getElementById('loan_interest_rate');
         const loanInterestPeriodSelect = document.getElementById('loan_interest_period');
+        const exportCustomersBtn = document.getElementById('exportCustomersBtn');
+        const exportLoansBtn = document.getElementById('exportLoansBtn');
         
         // --- 欄位標籤對應 ---
         const customerFieldLabels = { name: '姓名', identity: '身分證', dob: '生日', mobile: '手機', home_phone: '住家電話', line_id: 'Line ID', facebook: 'Facebook', household_address: '戶籍地址', current_address: '現居地址', residence_status: '居住狀況', company: '公司', job_title: '職稱', salary: '薪資 (月薪)', seniority: '年資', company_address: '公司地址', company_phone: '公司電話', insurance: '投保情況', special_conditions: '特殊狀況', contact1_name: '聯絡人1-姓名', contact1_relationship: '聯絡人1-關係', contact1_phone: '聯絡人1-電話', contact2_name: '聯絡人2-姓名', contact2_relationship: '聯絡人2-關係', contact2_phone: '聯絡人2-電話', scribe_loan: '代書結清', pawnshop_loan: '當鋪結清', small_loan: '小額結清', loan_amount: '申貸金額 (元)', fund_use: '資金用途' };
@@ -811,6 +884,7 @@
                 customers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderCustomerList();
                 populateCustomerDropdown();
+                renderAnalyticsCharts(); // 更新圖表
             }, (error) => {
                 console.error("客戶資料監聽失敗:", error);
                 showToast("無法讀取客戶資料，請檢查您的網路連線或權限。", "error");
@@ -821,6 +895,7 @@
             loanUnsubscribe = onSnapshot(query(loanColRef), (snapshot) => {
                 loans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderLoanList();
+                renderAnalyticsCharts(); // 更新圖表
             }, (error) => {
                 console.error("貸款資料監聽失敗:", error);
                 showToast("無法讀取貸款資料，請檢查您的網路連線或權限。", "error");
@@ -907,8 +982,8 @@
 
         // --- 分頁管理 ---
         function switchTab(activeTab) {
-            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent, helpTabContent].forEach(c => c.classList.remove('active'));
-            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn, helpTabBtn].forEach(b => b.classList.remove('active'));
+            [customerTabContent, loanTabContent, settingsTabContent, adminTabContent, helpTabContent, analyticsTabContent].forEach(c => c.classList.remove('active'));
+            [customerTabBtn, loanTabBtn, settingsTabBtn, adminTabBtn, helpTabBtn, analyticsTabBtn].forEach(b => b.classList.remove('active'));
             
             if (activeTab === 'customer') {
                 customerTabContent.classList.add('active');
@@ -932,6 +1007,10 @@
                 helpTabContent.classList.add('active');
                 helpTabBtn.classList.add('active');
                 headerSubtitle.textContent = '操作說明';
+            } else if (activeTab === 'analytics') {
+                analyticsTabContent.classList.add('active');
+                analyticsTabBtn.classList.add('active');
+                headerSubtitle.textContent = '數據分析總覽';
             }
         }
         customerTabBtn.addEventListener('click', () => switchTab('customer'));
@@ -939,6 +1018,8 @@
         settingsTabBtn.addEventListener('click', () => switchTab('settings'));
         adminTabBtn.addEventListener('click', () => switchTab('admin'));
         helpTabBtn.addEventListener('click', () => switchTab('help'));
+        analyticsTabBtn.addEventListener('click', () => switchTab('analytics'));
+
 
         // --- 設定管理 ---
         settingsForm.addEventListener('submit', async (e) => {
@@ -1530,6 +1611,163 @@
                 }
             }
         });
+
+        // --- 數據分析邏輯 ---
+        function renderAnalyticsCharts() {
+            // Summary Cards
+            const totalLoanAmount = loans.reduce((sum, loan) => sum + (parseFloat(loan.loan_apply_amount) || 0), 0);
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('totalLoans').textContent = loans.length;
+            document.getElementById('totalLoanAmount').textContent = `NT$ ${totalLoanAmount.toLocaleString()}`;
+
+            // Chart 1: Loan Status Distribution
+            const statusCtx = document.getElementById('loanStatusChart').getContext('2d');
+            const statusCounts = loans.reduce((acc, loan) => {
+                acc[loan.loan_status] = (acc[loan.loan_status] || 0) + 1;
+                return acc;
+            }, {});
+
+            if (loanStatusChartInstance) {
+                loanStatusChartInstance.destroy();
+            }
+            loanStatusChartInstance = new Chart(statusCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{
+                        data: Object.values(statusCounts),
+                        backgroundColor: ['#FBBF24', '#10B981', '#EF4444', '#3B82F6'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Monthly Loan Amount
+            const monthlyCtx = document.getElementById('monthlyLoanAmountChart').getContext('2d');
+            const monthlyData = Array(12).fill(0);
+            const currentYear = new Date().getFullYear();
+            loans.forEach(loan => {
+                const loanDate = new Date(loan.loan_date);
+                if (loanDate.getFullYear() === currentYear) {
+                    const month = loanDate.getMonth(); // 0-11
+                    monthlyData[month] += parseFloat(loan.loan_apply_amount) || 0;
+                }
+            });
+
+            if (monthlyLoanAmountChartInstance) {
+                monthlyLoanAmountChartInstance.destroy();
+            }
+            monthlyLoanAmountChartInstance = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+                    datasets: [{
+                        label: `${currentYear}年每月貸款總額`,
+                        data: monthlyData,
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'NT$ ' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- 匯出 CSV 邏輯 ---
+        function exportToCSV(data, filename) {
+            if (data.length === 0) {
+                showToast('沒有資料可以匯出。', 'info');
+                return;
+            }
+            const headers = Object.keys(data[0]);
+            const csvRows = [headers.join(',')];
+
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    let cell = row[header] === null || row[header] === undefined ? '' : String(row[header]);
+                    // 如果儲存格包含逗號、引號或換行符，用引號包起來
+                    if (cell.includes(',') || cell.includes('"') || cell.includes('\n')) {
+                        cell = `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                });
+                csvRows.push(values.join(','));
+            });
+
+            const csvString = csvRows.join('\n');
+            const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        exportCustomersBtn.addEventListener('click', () => {
+             const dataToExport = customers.map(c => {
+                // 建立一個新物件，只包含我們需要的欄位，並使用中文標籤
+                const filteredData = {};
+                customerFieldOrder.forEach(key => {
+                    const label = customerFieldLabels[key] || key;
+                    filteredData[label] = c[key] || '';
+                });
+                return filteredData;
+            });
+            exportToCSV(dataToExport, '客戶資料.csv');
+        });
+
+        exportLoansBtn.addEventListener('click', () => {
+            const dataToExport = loans.map(l => {
+                const customer = customers.find(c => c.id === l.loan_customer_id);
+                const totalPrincipalPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+                const totalInterestPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
+                const remainingPrincipal = (parseFloat(l.loan_apply_amount) || 0) - totalPrincipalPaid;
+                return {
+                    '客戶姓名': customer ? customer.name : '未知客戶',
+                    '貸款金額': l.loan_apply_amount || 0,
+                    '貸款日期': l.loan_date || '',
+                    '貸款利率(%)': l.loan_interest_rate || 0,
+                    '利率單位': l.loan_interest_period || '',
+                    '貸款模式': l.loan_mode === 'amortization' ? '本利攤還' : '純繳利息',
+                    '計算公式': l.calc_method === 'simple' ? '簡易利息計算' : '標準PMT公式',
+                    '還款週期': l.repayment_cycle || '',
+                    '貸款期數': l.loan_term || 'N/A',
+                    '每期應繳': l.periodic_payment || 0,
+                    '還本降息': l.principal_reduction ? '是' : '否',
+                    '貸款狀態': l.loan_status || '',
+                    '剩餘本金': remainingPrincipal,
+                    '已繳本金': totalPrincipalPaid,
+                    '已繳利息': totalInterestPaid,
+                    '交易筆數': (l.transactions || []).length,
+                    '備註': l.loan_notes || ''
+                };
+            });
+            exportToCSV(dataToExport, '貸款資料.csv');
+        });
+
 
         // --- 通用返回按鈕 ---
         document.querySelectorAll('.back-to-list-btn').forEach(btn => {
