@@ -933,8 +933,9 @@
                         announcementTextInput.value = announcementData.text || '';
                     }
 
-                    const lastSeenTimestamp = localStorage.getItem('lastAnnouncementTimestamp');
-                    if (announcementData.text && announcementTimestamp && announcementTimestamp !== lastSeenTimestamp) {
+                    // Check sessionStorage to see if this announcement has been shown in the current session
+                    const sessionSeenTimestamp = sessionStorage.getItem('announcementSeenInSession');
+                    if (announcementData.text && announcementData.text.trim() !== '' && announcementTimestamp && announcementTimestamp !== sessionSeenTimestamp) {
                         currentAnnouncementTimestamp = announcementTimestamp;
                         announcementModalText.textContent = announcementData.text;
                         announcementModal.classList.remove('hidden');
@@ -1565,7 +1566,8 @@
         closeAnnouncementBtn.addEventListener('click', () => {
             announcementModal.classList.add('hidden');
             if (currentAnnouncementTimestamp) {
-                localStorage.setItem('lastAnnouncementTimestamp', currentAnnouncementTimestamp);
+                // Store in sessionStorage to prevent it from showing again in the same session
+                sessionStorage.setItem('announcementSeenInSession', currentAnnouncementTimestamp);
             }
         });
         
