@@ -383,7 +383,41 @@
                                     <div class="flex items-end space-x-2"><div class="flex-grow"><label for="loan_interest_rate" class="block text-sm font-medium text-gray-600 mb-1">貸款利率 (%)</label><input type="number" step="0.01" id="loan_interest_rate" name="loan_interest_rate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed" placeholder="例如: 2.5" required></div><div><label for="loan_interest_period" class="block text-sm font-medium text-gray-600 mb-1">單位</label><select id="loan_interest_period" name="loan_interest_period" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"><option value="year">年</option><option value="month">月</option><option value="day">日</option></select></div></div>
                                     
                                     <div><label for="loan_mode" class="block text-sm font-medium text-gray-600 mb-1">貸款模式</label><select id="loan_mode" name="loan_mode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="amortization">本利攤還</option><option value="interest_only">純繳利息</option></select></div>
-                                    <div class="flex items-end space-x-2"><div class="flex-grow"><label for="repayment_cycle" class="block text-sm font-medium text-gray-600 mb-1">還款週期</label><select id="repayment_cycle" name="repayment_cycle" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="month">月</option><option value="week">週</option><option value="day">日</option></select></div><div id="repayment_days_wrapper" class="hidden"><label for="repayment_days" class="block text-sm font-medium text-gray-600 mb-1">天數</label><input type="number" id="repayment_days" name="repayment_days" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="幾日"></div></div>
+                                    
+                                    <!-- 還款週期/日期/罰金設定 (已更新) -->
+                                    <div id="repayment-cycle-wrapper" class="flex items-end space-x-2">
+                                        <div class="flex-grow">
+                                            <label for="repayment_cycle" class="block text-sm font-medium text-gray-600 mb-1">還款週期</label>
+                                            <select id="repayment_cycle" name="repayment_cycle" class="w-full h-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                <option value="month">月</option>
+                                                <option value="week">週</option>
+                                                <option value="day">日</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <!-- 每日/天數設定 (當週期非日會顯示天數，週期為日會顯示還款日與罰金) -->
+                                        <div id="repayment_day_settings" class="flex items-end space-x-2">
+                                            <!-- 預設顯示天數 (月/週) -->
+                                            <div id="repayment_days_wrapper" class="hidden">
+                                                <label for="repayment_days" class="block text-sm font-medium text-gray-600 mb-1">天數</label>
+                                                <input type="number" id="repayment_days" name="repayment_days" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="幾日">
+                                            </div>
+
+                                            <!-- 每日還款/罰金設定 (日週期時顯示) -->
+                                            <div id="daily_repayment_settings" class="hidden">
+                                                <div>
+                                                    <label for="next_payment_date" class="block text-sm font-medium text-gray-600 mb-1">下次還款日</label>
+                                                    <input type="date" id="next_payment_date" name="next_payment_date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                </div>
+                                                <div class="mt-4">
+                                                    <label for="daily_penalty" class="block text-sm font-medium text-gray-600 mb-1">每日罰金 (元)</label>
+                                                    <input type="number" id="daily_penalty" name="daily_penalty" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- 還款週期/日期/罰金設定 END -->
+
                                     <div id="loan_term_wrapper"><label for="loan_term" class="block text-sm font-medium text-gray-600 mb-1">貸款期數</label><input type="number" id="loan_term" name="loan_term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200 disabled:cursor-not-allowed" placeholder="總共要還幾期"></div>
                                     <div id="calculation_method_wrapper"><label class="block text-sm font-medium text-gray-600 mb-2">計算公式</label><div class="flex items-center space-x-4"><label for="calc_method_pmt" class="flex items-center"><input type="radio" id="calc_method_pmt" name="calc_method" value="pmt" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked><span class="ml-2 text-sm text-gray-700">標準PMT公式</span></label><label for="calc_method_simple" class="flex items-center"><input type="radio" id="calc_method_simple" name="calc_method" value="simple" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"><span class="ml-2 text-sm text-gray-700">簡易利息計算</span></label></div></div>
                                     <div><label for="loan_status" class="block text-sm font-medium text-gray-600 mb-1">貸款狀態</label><select id="loan_status" name="loan_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="審核中">審核中</option><option value="已核准">已核准</option><option value="已駁回">已駁回</option><option value="已清償">已清償</option></select></div>
@@ -414,7 +448,7 @@
                 
                 <!-- 數據分析分頁內容 -->
                 <div id="analyticsTabContent" class="view">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                         <!-- Summary Cards -->
                         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
                             <div>
@@ -422,7 +456,7 @@
                                 <p id="totalCustomers" class="text-3xl font-bold text-gray-900">0</p>
                             </div>
                             <div class="bg-blue-100 p-3 rounded-full">
-                                <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                <svg class="h-6 w-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             </div>
                         </div>
                          <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
@@ -443,13 +477,23 @@
                                 <svg class="h-6 w-6 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                             </div>
                         </div>
+                        <!-- 新增總利息收益 -->
+                         <div class="bg-white p-6 rounded-2xl shadow-lg flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">總利息收益</p>
+                                <p id="totalInterestRevenue" class="text-3xl font-bold text-red-600">NT$ 0</p>
+                            </div>
+                             <div class="bg-red-100 p-3 rounded-full">
+                                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.219-2.071-.659-1.172-.879-1.172-2.303 0-3.182s2.91-1.318 4.082-.439m-4.082 3.536L12 10.5h4"></path></svg>
+                            </div>
+                        </div>
 
                         <!-- Charts -->
                         <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">貸款狀態分佈</h3>
                             <canvas id="loanStatusChart"></canvas>
                         </div>
-                        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                        <div class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-lg">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4">每月貸款總額</h3>
                             <canvas id="monthlyLoanAmountChart"></canvas>
                         </div>
@@ -564,7 +608,7 @@
                             <div>
                                 <h3 class="text-lg font-semibold text-gray-700">4. 數據分析</h3>
                                 <p class="text-gray-600 mt-1 pl-4">
-                                    - 此頁面會顯示目前的業務概況，包含客戶數、貸款筆數、總金額，以及貸款狀態分佈和每月業績趨勢圖表。所有圖表都會隨著您的資料更新而即時變動。
+                                    - 此頁面會顯示目前的業務概況，包含客戶數、貸款筆數、總金額、**總利息收益**，以及貸款狀態分佈和每月業績趨勢圖表。所有圖表都會隨著您的資料更新而即時變動。
                                 </p>
                             </div>
 
@@ -589,22 +633,63 @@
     <script type="module">
         // 引入 Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase 設定 (請務必從您的 Firebase 控制台複製完整設定) ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyBPnQoKjcWFPSin1zo_xn83WZ5CIOV4Waw",
-          authDomain: "minjian.firebaseapp.com",
-          projectId: "minjian",
-          storageBucket: "minjian.appspot.com",
-          messagingSenderId: "44357085928",
-          appId: "1:44357085928:web:PASTE_YOUR_FULL_APP_ID_HERE" // **重要**：請從 Firebase 控制台複製完整的 App ID 貼到此處
-        };
+        // --- Firebase 設定與初始化 ---
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
+        // 嘗試使用提供的 token 登入，或使用匿名登入
+        async function authenticate() {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error("Firebase initial authentication failed, attempting anonymous sign-in:", e);
+                try {
+                    if (!auth.currentUser) {
+                        await signInAnonymously(auth);
+                    }
+                } catch (anonError) {
+                    console.error("Anonymous sign-in also failed:", anonError);
+                }
+            }
+        }
+        authenticate();
+
+        // --- Firebase Collection/Doc References (使用專屬路徑) ---
+        function getCustomerCollectionRef(uid) {
+            return collection(db, 'artifacts', appId, 'users', uid, 'customers');
+        }
+        function getLoanCollectionRef(uid) {
+            return collection(db, 'artifacts', appId, 'users', uid, 'loans');
+        }
+        function getSettingsDocRef(uid) {
+            // 用於儲存公司名稱等使用者專屬設定
+            return doc(db, 'artifacts', appId, 'users', uid, 'settings_data'); 
+        }
+        function getAllUsersCollectionRef() {
+            // 管理員專用，儲存所有用戶權限
+            return collection(db, 'all_users'); 
+        }
+        function getGlobalMarqueeDocRef() {
+            // 全域公告，使用公共路徑
+            return doc(db, 'artifacts', appId, 'public', 'data', 'globals', 'marquee');
+        }
+        function getGlobalAnnouncementDocRef() {
+            // 全域公告，使用公共路徑
+            return doc(db, 'artifacts', appId, 'public', 'data', 'globals', 'announcement');
+        }
+
 
         // --- 全域變數 ---
         const ADMIN_EMAIL = "a338651@gmail.com"; // **重要**：請將此處改為您自己的管理員 Email
@@ -647,7 +732,12 @@
         const customerFormTitle = document.getElementById('customer-form-title'), customerFormSubmitBtn = document.getElementById('customer-form-submit-btn'); 
         const loanListView = document.getElementById('loanListView'), loanFormView = document.getElementById('loanFormView'), loanDetailsView = document.getElementById('loanDetailsView');
         const showLoanFormBtn = document.getElementById('showLoanFormBtn'), loanForm = document.getElementById('loanForm'), loanTableBody = document.getElementById('loanTableBody'), loanDetailsContent = document.getElementById('loanDetailsContent');
-        const loanCustomerIdSelect = document.getElementById('loan_customer_id'), repaymentCycleSelect = document.getElementById('repayment_cycle'), repaymentDaysWrapper = document.getElementById('repayment_days_wrapper');
+        const loanCustomerIdSelect = document.getElementById('loan_customer_id');
+        const repaymentCycleSelect = document.getElementById('repayment_cycle');
+        const repaymentDaysWrapper = document.getElementById('repayment_days_wrapper');
+        const dailyRepaymentSettings = document.getElementById('daily_repayment_settings');
+        const nextPaymentDateInput = document.getElementById('next_payment_date');
+        const dailyPenaltyInput = document.getElementById('daily_penalty');
         const loanModeSelect = document.getElementById('loan_mode'), loanTermInput = document.getElementById('loan_term'), loanTermWrapper = document.getElementById('loan_term_wrapper');
         const transactionSection = document.getElementById('transactionSection'), showTransactionFormBtn = document.getElementById('showTransactionFormBtn'), addTransactionForm = document.getElementById('addTransactionForm'), cancelTransactionBtn = document.getElementById('cancelTransactionBtn'), transactionHistoryBody = document.getElementById('transactionHistoryBody');
         const summaryRemainingPrincipal = document.getElementById('summaryRemainingPrincipal'), summaryPrincipalPaid = document.getElementById('summaryPrincipalPaid'), summaryInterestPaid = document.getElementById('summaryInterestPaid');
@@ -675,11 +765,12 @@
         const loanInterestPeriodSelect = document.getElementById('loan_interest_period');
         const exportCustomersBtn = document.getElementById('exportCustomersBtn');
         const exportLoansBtn = document.getElementById('exportLoansBtn');
+        const totalInterestRevenueElement = document.getElementById('totalInterestRevenue'); // 新增
         
         // --- 欄位標籤對應 ---
         const customerFieldLabels = { name: '姓名', identity: '身分證', dob: '生日', mobile: '手機', home_phone: '住家電話', line_id: 'Line ID', facebook: 'Facebook', household_address: '戶籍地址', current_address: '現居地址', residence_status: '居住狀況', company: '公司', job_title: '職稱', salary: '薪資 (月薪)', seniority: '年資', company_address: '公司地址', company_phone: '公司電話', insurance: '投保情況', special_conditions: '特殊狀況', contact1_name: '聯絡人1-姓名', contact1_relationship: '聯絡人1-關係', contact1_phone: '聯絡人1-電話', contact2_name: '聯絡人2-姓名', contact2_relationship: '聯絡人2-關係', contact2_phone: '聯絡人2-電話', scribe_loan: '代書結清', pawnshop_loan: '當鋪結清', small_loan: '小額結清', loan_amount: '申貸金額 (元)', fund_use: '資金用途' };
         const customerFieldOrder = [ 'name', 'identity', 'dob', 'mobile', 'home_phone', 'line_id', 'facebook', 'household_address', 'current_address', 'residence_status', 'company', 'job_title', 'salary', 'seniority', 'company_address', 'company_phone', 'insurance', 'special_conditions', 'contact1_name', 'contact1_relationship', 'contact1_phone', 'contact2_name', 'contact2_relationship', 'contact2_phone', 'scribe_loan', 'pawnshop_loan', 'small_loan', 'loan_amount', 'fund_use' ];
-        const loanFieldLabels = { loan_customer_id: '客戶姓名', loan_apply_amount: '貸款金額', loan_date: '貸款日期', loan_interest_rate: '貸款利率', loan_interest_period: '利率單位', loan_mode: '貸款模式', calc_method: '計算公式', repayment_cycle: '還款週期', repayment_days: '還款天數', loan_term: '貸款期數', loan_reason: '貸款原因', loan_status: '貸款狀態', principal_reduction: '還本降息', loan_notes: '備註', periodic_payment: '每期應繳金額' };
+        const loanFieldLabels = { loan_customer_id: '客戶姓名', loan_apply_amount: '貸款金額', loan_date: '貸款日期', loan_interest_rate: '貸款利率', loan_interest_period: '利率單位', loan_mode: '貸款模式', calc_method: '計算公式', repayment_cycle: '還款週期', repayment_days: '還款天數', next_payment_date: '下次還款日', daily_penalty: '每日罰金', loan_term: '貸款期數', loan_reason: '貸款原因', loan_status: '貸款狀態', principal_reduction: '還本降息', loan_notes: '備註', periodic_payment: '每期應繳金額' };
 
         // --- 認證狀態監聽 ---
         onAuthStateChanged(auth, async (user) => {
@@ -723,14 +814,14 @@
                 
                 authView.classList.add('hidden');
                 mainAppView.classList.remove('hidden');
-                userInfo.textContent = user.isAnonymous ? `訪客 ID: ${user.uid}` : `使用者: ${user.email}`;
+                userInfo.textContent = user.isAnonymous ? `訪客 ID: ${user.uid}` : `使用者: ${user.email} (ID: ${user.uid})`;
                 
                 // 顯示管理員分頁和設定
                 const isAdmin = auth.currentUser.email === ADMIN_EMAIL;
                 adminTabBtn.classList.toggle('hidden', !isAdmin);
                 adminSettingsSection.classList.toggle('hidden', !isAdmin);
 
-                initializeAppLogic();
+                initializeAppLogic(userId, isAdmin);
             } else {
                 userId = null;
                 mainAppView.classList.add('hidden');
@@ -809,11 +900,11 @@
                 });
 
                 // 為新用戶建立範例資料
-                const customerColRef = collection(db, 'users', user.uid, 'customers');
+                const customerColRef = getCustomerCollectionRef(user.uid);
                 const sampleCustomer = { name: '範例客戶-王大明', mobile: '0912345678', loan_amount: '100000' };
                 const customerDoc = await addDoc(customerColRef, sampleCustomer);
 
-                const loanColRef = collection(db, 'users', user.uid, 'loans');
+                const loanColRef = getLoanCollectionRef(user.uid);
                 const sampleLoan = {
                     loan_customer_id: customerDoc.id,
                     loan_apply_amount: '100000',
@@ -857,11 +948,10 @@
         });
 
         // --- 主應用程式邏輯 ---
-        function initializeAppLogic() {
-            if (!userId) return;
+        function initializeAppLogic(currentUid, isAdmin) {
             
             // 監聽設定
-            const settingsDocRef = doc(db, 'users', userId);
+            const settingsDocRef = getSettingsDocRef(currentUid);
             settingsUnsubscribe = onSnapshot(settingsDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const settings = docSnap.data();
@@ -875,11 +965,11 @@
                 }
             }, (error) => {
                 console.error("設定資料監聽失敗:", error);
-                showToast("無法讀取系統設定，請檢查您的網路連線或權限。", "error");
+                // showToast("無法讀取系統設定，請檢查您的網路連線或權限。", "error"); // Commented out to prevent excessive toast messages on load
             });
 
             // 監聽客戶資料
-            const customerColRef = collection(db, 'users', userId, 'customers');
+            const customerColRef = getCustomerCollectionRef(currentUid);
             customerUnsubscribe = onSnapshot(query(customerColRef), (snapshot) => {
                 customers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderCustomerList();
@@ -887,29 +977,29 @@
                 renderAnalyticsCharts(); // 更新圖表
             }, (error) => {
                 console.error("客戶資料監聽失敗:", error);
-                showToast("無法讀取客戶資料，請檢查您的網路連線或權限。", "error");
+                // showToast("無法讀取客戶資料，請檢查您的網路連線或權限。", "error");
             });
 
             // 監聽貸款資料
-            const loanColRef = collection(db, 'users', userId, 'loans');
+            const loanColRef = getLoanCollectionRef(currentUid);
             loanUnsubscribe = onSnapshot(query(loanColRef), (snapshot) => {
                 loans = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderLoanList();
                 renderAnalyticsCharts(); // 更新圖表
             }, (error) => {
                 console.error("貸款資料監聽失敗:", error);
-                showToast("無法讀取貸款資料，請檢查您的網路連線或權限。", "error");
+                // showToast("無法讀取貸款資料，請檢查您的網路連線或權限。", "error");
             });
 
             // 監聽跑馬燈
-            const marqueeDocRef = doc(db, 'globals', 'marquee');
+            const marqueeDocRef = getGlobalMarqueeDocRef();
             marqueeUnsubscribe = onSnapshot(marqueeDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const marqueeData = docSnap.data();
                     if (marqueeData.text && marqueeData.text.trim() !== '') {
                         marqueeTextContent.textContent = marqueeData.text;
                         marqueeContainer.classList.remove('hidden');
-                        if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                        if (isAdmin) {
                             marqueeTextInput.value = marqueeData.text;
                         }
                     } else {
@@ -923,13 +1013,13 @@
             });
 
             // 監聽彈窗公告
-            const announcementDocRef = doc(db, 'globals', 'announcement');
+            const announcementDocRef = getGlobalAnnouncementDocRef();
             announcementUnsubscribe = onSnapshot(announcementDocRef, (docSnap) => {
                 if (docSnap.exists()) {
                     const announcementData = docSnap.data();
                     const announcementTimestamp = announcementData.timestamp?.toMillis().toString();
                     
-                    if (auth.currentUser && auth.currentUser.email === ADMIN_EMAIL) {
+                    if (isAdmin) {
                         announcementTextInput.value = announcementData.text || '';
                     }
 
@@ -946,14 +1036,14 @@
             });
 
             // 監聽所有使用者資料 (for admin)
-            if (auth.currentUser.email === ADMIN_EMAIL) {
-                const allUsersColRef = collection(db, 'all_users');
+            if (isAdmin) {
+                const allUsersColRef = getAllUsersCollectionRef();
                 usersUnsubscribe = onSnapshot(query(allUsersColRef), (snapshot) => {
                     allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderUserList();
                 }, (error) => {
                     console.error("使用者列表監聽失敗:", error);
-                    showToast("無法讀取使用者列表，請檢查權限設定。", "error");
+                    // showToast("無法讀取使用者列表，請檢查權限設定。", "error");
                 });
             }
         }
@@ -1012,6 +1102,8 @@
                 analyticsTabContent.classList.add('active');
                 analyticsTabBtn.classList.add('active');
                 headerSubtitle.textContent = '數據分析總覽';
+                // 確保在切換到分析頁面時重新渲染圖表
+                renderAnalyticsCharts(); 
             }
         }
         customerTabBtn.addEventListener('click', () => switchTab('customer'));
@@ -1026,8 +1118,10 @@
         settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newName = companyNameInput.value.trim();
-            if (newName && userId) {
-                const settingsDocRef = doc(db, 'users', userId);
+            if (!userId) return;
+
+            if (newName) {
+                const settingsDocRef = getSettingsDocRef(userId);
                 try {
                     await setDoc(settingsDocRef, { companyName: newName }, { merge: true });
                     showToast('設定已儲存！', 'success');
@@ -1041,7 +1135,7 @@
         marqueeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newText = marqueeTextInput.value;
-            const marqueeDocRef = doc(db, 'globals', 'marquee');
+            const marqueeDocRef = getGlobalMarqueeDocRef();
             try {
                 await setDoc(marqueeDocRef, { text: newText });
                 showToast('跑馬燈已更新！', 'success');
@@ -1054,8 +1148,9 @@
         announcementForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newText = announcementTextInput.value;
-            const announcementDocRef = doc(db, 'globals', 'announcement');
+            const announcementDocRef = getGlobalAnnouncementDocRef();
             try {
+                // 使用 setDoc 覆蓋，並更新時間戳記
                 await setDoc(announcementDocRef, { text: newText, timestamp: serverTimestamp() });
                 showToast('彈窗公告已發布！', 'success');
             } catch (error) {
@@ -1086,7 +1181,12 @@
             customerFieldOrder.forEach(key => {
                 if (customer[key]) {
                     const label = customerFieldLabels[key] || key;
-                    customerDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${customer[key]}</p></div>`;
+                    let displayValue = customer[key];
+                    // 格式化金額
+                    if (['salary', 'loan_amount'].includes(key) && !isNaN(parseFloat(displayValue))) {
+                        displayValue = `NT$ ${parseFloat(displayValue).toLocaleString()}`;
+                    }
+                    customerDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${displayValue}</p></div>`;
                 }
             });
 
@@ -1115,12 +1215,16 @@
         }
         function validateCustomerForm(data) {
             const mobileRegex = /^09\d{8}$/;
-            if (!mobileRegex.test(data.mobile)) {
+            if (!data.name || data.name.trim() === '') {
+                 showToast('姓名欄位為必填。', 'error');
+                 return false;
+            }
+            if (!data.mobile || !mobileRegex.test(data.mobile)) {
                 showToast('手機號碼格式不正確，應為 09 開頭的 10 位數字。', 'error');
                 return false;
             }
-            if (data.loan_amount && parseInt(data.loan_amount) <= 0) {
-                showToast('申貸金額必須為正數。', 'error');
+            if (data.loan_amount && parseInt(data.loan_amount) < 0) {
+                showToast('申貸金額不能為負數。', 'error');
                 return false;
             }
             return true;
@@ -1141,17 +1245,24 @@
             const formData = new FormData(e.target);
             const customerData = Object.fromEntries(formData.entries());
 
+            // 處理空值問題，讓所有欄位值都是字串
+            for (const key in customerData) {
+                if (customerData[key] === null || customerData[key] === undefined) {
+                    customerData[key] = '';
+                }
+            }
+            
             if (!validateCustomerForm(customerData)) return;
             
             try {
                 if (currentEditingCustomerId) {
                     // 更新模式
-                    const customerDocRef = doc(db, 'users', userId, 'customers', currentEditingCustomerId);
+                    const customerDocRef = doc(getCustomerCollectionRef(userId), currentEditingCustomerId);
                     await updateDoc(customerDocRef, customerData);
                     showToast('客戶資料更新成功！', 'success');
                 } else {
                     // 新增模式
-                    const customerColRef = collection(db, 'users', userId, 'customers');
+                    const customerColRef = getCustomerCollectionRef(userId);
                     await addDoc(customerColRef, customerData);
                     showToast('客戶新增成功！', 'success');
                 }
@@ -1199,53 +1310,94 @@
         // --- 貸款管理邏輯 ---
         function handleLoanFormLogic() {
             const isInterestOnly = loanModeSelect.value === 'interest_only';
-            const isSimpleCalc = document.querySelector('input[name="calc_method"]:checked').value === 'simple';
+            const isSimpleCalc = document.querySelector('input[name="calc_method"]:checked')?.value === 'simple';
             
-            const calculationGoal = document.querySelector('input[name="calculation_goal"]:checked').value;
+            const calculationGoal = document.querySelector('input[name="calculation_goal"]:checked')?.value;
             const isCalculatingRate = calculationGoal === 'calculate_rate';
+            const isDailyRepayment = repaymentCycleSelect.value === 'day';
 
             loanInterestRateInput.disabled = isCalculatingRate;
             loanInterestPeriodSelect.disabled = isCalculatingRate;
             desiredPaymentWrapper.classList.toggle('hidden', !isCalculatingRate);
             
-            loanTermInput.disabled = isInterestOnly;
-            loanTermInput.required = !isInterestOnly;
-            loanTermWrapper.classList.toggle('opacity-50', isInterestOnly);
-            if(isInterestOnly) loanTermInput.value = '';
+            loanTermInput.disabled = isInterestOnly || isCalculatingRate; // 如果是反推利率，期數不影響，也應該禁用
+            loanTermInput.required = !isInterestOnly && !isCalculatingRate;
+            loanTermWrapper.classList.toggle('opacity-50', isInterestOnly || isCalculatingRate);
+            if(isInterestOnly || isCalculatingRate) loanTermInput.value = '';
             
+            // 純繳利息或反推利率時，禁用切換公式
             calculationMethodWrapper.classList.toggle('opacity-50', isInterestOnly || isCalculatingRate);
             calcMethodRadios.forEach(radio => radio.disabled = isInterestOnly || isCalculatingRate);
+            if(isInterestOnly || isCalculatingRate) {
+                document.getElementById('calc_method_pmt').checked = true; // 預設為PMT或僅利息，避免簡易利息
+            }
             
+            // 還本降息只在 本利攤還(非純繳利息) + 標準PMT公式(非簡易利息) + 非反推利率 時啟用
             principalReductionCheckbox.disabled = isInterestOnly || isSimpleCalc || isCalculatingRate;
             principalReductionCheckbox.parentElement.classList.toggle('opacity-50', isInterestOnly || isSimpleCalc || isCalculatingRate);
             
-            if (isSimpleCalc || isCalculatingRate) {
+            if (isSimpleCalc || isCalculatingRate || isInterestOnly) {
                 principalReductionCheckbox.checked = false;
             }
             if (isCalculatingRate) {
+                // 如果是反推利率，強制為純繳利息模式（因為計算公式最簡單）
                 loanModeSelect.value = 'interest_only';
-                loanModeSelect.dispatchEvent(new Event('change'));
+                loanModeSelect.dispatchEvent(new Event('change')); 
+            }
+
+            // 處理還款週期設定 (日模式)
+            repaymentDaysWrapper.classList.toggle('hidden', isDailyRepayment);
+            dailyRepaymentSettings.classList.toggle('hidden', !isDailyRepayment);
+
+            // 確保當非日模式時，每日罰金欄位不為必填
+            if (isDailyRepayment) {
+                nextPaymentDateInput.required = true;
+                dailyPenaltyInput.required = true;
+            } else {
+                nextPaymentDateInput.required = false;
+                dailyPenaltyInput.required = false;
             }
         }
 
-        function calculatePeriodicPayment(loanData) {
-            const L = parseFloat(loanData.loan_apply_amount);
+        function calculatePeriodicPayment(loanData, currentPrincipal = null) {
+            const L = parseFloat(currentPrincipal !== null ? currentPrincipal : loanData.loan_apply_amount);
             const term = parseInt(loanData.loan_term);
             const rate = parseFloat(loanData.loan_interest_rate) / 100;
-            if (isNaN(L) || isNaN(rate) || L <= 0 || rate < 0) return 0;
-            if (loanData.loan_mode === 'amortization' && (isNaN(term) || term <= 0)) return 0;
-            let periodicRate;
+            
+            if (isNaN(L) || L <= 0 || isNaN(rate) || rate < 0) return 0;
+            
             let ratePeriod = loanData.loan_interest_period;
             let cycle = loanData.repayment_cycle;
-            let cycleDays = cycle === 'day' ? parseInt(loanData.repayment_days) || 1 : (cycle === 'week' ? 7 : 30.4375);
+            let cycleDays;
+
+            if (cycle === 'day') {
+                cycleDays = 1; // 每日還款，週期天數固定為 1
+            } else if (cycle === 'week') {
+                cycleDays = 7;
+            } else { // month
+                cycleDays = 30.4375;
+            }
+
             let dailyRate;
+
             if (ratePeriod === 'year') dailyRate = rate / 365;
             else if (ratePeriod === 'month') dailyRate = rate / 30.4375;
             else dailyRate = rate;
-            periodicRate = dailyRate * cycleDays;
-            if (loanData.loan_mode === 'interest_only') return Math.round(L * periodicRate);
-            if (loanData.calc_method === 'simple') return Math.round((L / term) + (L * periodicRate));
-            else {
+
+            const periodicRate = dailyRate * cycleDays;
+
+            if (loanData.loan_mode === 'interest_only') {
+                return Math.round(L * periodicRate);
+            }
+
+            // 以下為攤還模式 (amortization)
+            if (loanData.calc_method === 'simple') {
+                if (isNaN(term) || term <= 0) return 0;
+                // 簡易計算: 本金/期數 + 本金*週期利率
+                return Math.round((L / term) + (L * periodicRate));
+            } else {
+                // 標準 PMT 公式
+                if (isNaN(term) || term <= 0) return 0;
                 const r = periodicRate;
                 const n = term;
                 if (r === 0) return Math.round(L / n);
@@ -1258,19 +1410,23 @@
             const loanAmount = parseFloat(document.getElementById('loan_apply_amount').value);
             const desiredPayment = parseFloat(desiredPaymentAmountInput.value);
             const repaymentCycle = repaymentCycleSelect.value;
-            const repaymentDays = parseInt(document.getElementById('repayment_days').value) || 1;
+            // 當週期為日，週期天數固定為 1
+            const repaymentDays = repaymentCycle === 'day' ? 1 : (repaymentCycle === 'week' ? 7 : 30.4375); 
             const interestPeriod = loanInterestPeriodSelect.value;
             
-            if (isNaN(loanAmount) || loanAmount <= 0 || isNaN(desiredPayment) || desiredPayment < 0) {
+            const isCalculatingRate = document.querySelector('input[name="calculation_goal"]:checked')?.value === 'calculate_rate';
+            if (!isCalculatingRate) return;
+
+            if (isNaN(loanAmount) || loanAmount <= 0 || isNaN(desiredPayment) || desiredPayment <= 0) {
                 loanInterestRateInput.value = '';
                 return;
             }
 
-            const cycleDays = repaymentCycle === 'day' ? repaymentDays : (repaymentCycle === 'week' ? 7 : 30.4375);
+            const cycleDays = repaymentDays;
             
-            // This calculation is for interest-only mode
-            const periodicRate = desiredPayment / loanAmount;
-            const dailyRate = periodicRate / cycleDays;
+            // 反推利率僅用於純繳利息模式 (Interest Only)
+            const periodicRate = desiredPayment / loanAmount; // 每週期利率 (小數)
+            const dailyRate = periodicRate / cycleDays; // 每日利率 (小數)
 
             let finalRate;
             if (interestPeriod === 'year') {
@@ -1281,6 +1437,7 @@
                 finalRate = dailyRate;
             }
 
+            // 轉換為百分比並保留四位小數
             loanInterestRateInput.value = (finalRate * 100).toFixed(4);
         }
 
@@ -1301,14 +1458,17 @@
             } else {
                 filteredLoans.forEach(l => {
                     const customer = customers.find(c => c.id == l.loan_customer_id);
-                    const totalPrincipalPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
-                    const totalInterestPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
+                    const transactions = l.transactions || [];
+                    const totalPrincipalPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+                    const totalInterestPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
                     const remainingPrincipal = (parseFloat(l.loan_apply_amount) || 0) - totalPrincipalPaid;
+
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50';
                     const statusColor = l.loan_status === '已核准' ? 'bg-green-100 text-green-800' : (l.loan_status === '已駁回' ? 'bg-red-100 text-red-800' : (l.loan_status === '已清償' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'));
                     const addTransactionBtnHtml = l.loan_status === '已核准' ? `<button data-id="${l.id}" class="add-transaction-btn text-green-600 hover:text-green-900 ml-4">新增交易</button>` : '';
-                    row.innerHTML = `<td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${customer ? customer.name : '未知客戶'}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${l.loan_apply_amount ? 'NT$ ' + parseInt(l.loan_apply_amount).toLocaleString() : 'N/A'}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-blue-600 font-medium">${'NT$ ' + remainingPrincipal.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-green-600 font-medium">${'NT$ ' + totalPrincipalPaid.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-orange-600 font-medium">${'NT$ ' + totalInterestPaid.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-bold text-red-600">${l.periodic_payment ? 'NT$ ' + l.periodic_payment.toLocaleString() : 'N/A'}</div></td><td class="px-4 py-4 whitespace-nowrap text-center"><div class="text-sm text-gray-600">${(l.transactions || []).length}</div></td><td class="px-4 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${l.loan_status || 'N/A'}</span></td><td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium"><button data-id="${l.id}" class="view-loan-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button>${addTransactionBtnHtml}<button data-id="${l.id}" class="delete-loan-btn text-red-600 hover:text-red-900 ml-4">刪除</button></td>`;
+                    
+                    row.innerHTML = `<td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-medium text-gray-900">${customer ? customer.name : '未知客戶'}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-gray-600">${l.loan_apply_amount ? 'NT$ ' + parseInt(l.loan_apply_amount).toLocaleString() : 'N/A'}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-blue-600 font-medium">${'NT$ ' + remainingPrincipal.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-green-600 font-medium">${'NT$ ' + totalPrincipalPaid.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm text-orange-600 font-medium">${'NT$ ' + totalInterestPaid.toLocaleString()}</div></td><td class="px-4 py-4 whitespace-nowrap"><div class="text-sm font-bold text-red-600">${l.periodic_payment ? 'NT$ ' + parseInt(l.periodic_payment).toLocaleString() : 'N/A'}</div></td><td class="px-4 py-4 whitespace-nowrap text-center"><div class="text-sm text-gray-600">${transactions.length}</div></td><td class="px-4 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">${l.loan_status || 'N/A'}</span></td><td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium"><button data-id="${l.id}" class="view-loan-details-btn text-indigo-600 hover:text-indigo-900">查看明細</button>${addTransactionBtnHtml}<button data-id="${l.id}" class="delete-loan-btn text-red-600 hover:text-red-900 ml-4">刪除</button></td>`;
                     loanTableBody.appendChild(row);
                 });
             }
@@ -1319,6 +1479,11 @@
             if (!loan) return;
             const customer = customers.find(c => c.id == loan.loan_customer_id);
             loanDetailsContent.innerHTML = '';
+            
+            // 重新計算剩餘本金
+            const totalPrincipalPaid = (loan.transactions || []).reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+            const remainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - totalPrincipalPaid;
+
             for (const [key, value] of Object.entries(loan)) {
                  if (key !== 'id' && key !== 'transactions' && value !== undefined) {
                     let displayValue = value;
@@ -1330,7 +1495,7 @@
                         continue;
                     }
                     if (key === 'periodic_payment') {
-                        const dynamicLabel = loan.principal_reduction ? '<span class="ml-2 text-xs text-blue-500">(還本降息後更新)</span>' : '';
+                        const dynamicLabel = loan.principal_reduction ? `<span class="ml-2 text-xs text-blue-500">(還本降息後更新)</span>` : '';
                         loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words font-bold text-red-600">${`NT$ ${parseInt(value).toLocaleString()}`}${dynamicLabel}</p></div>`;
                         continue;
                     }
@@ -1342,9 +1507,38 @@
                     if (key === 'calc_method') displayValue = value === 'simple' ? '簡易利息計算' : '標準PMT公式';
                     if (key === 'loan_interest_period') displayValue = value === 'year' ? '年' : (value === 'month' ? '月' : '日');
                     if (key === 'repayment_cycle') displayValue = value === 'month' ? '月' : (value === 'week' ? '週' : '日');
+                    
+                    // 新增還款日期和罰金顯示
+                    if (key === 'next_payment_date') {
+                        // 檢查是否逾期
+                        const today = new Date().toISOString().split('T')[0];
+                        let penaltyHtml = '';
+                        if (value && value < today && loan.loan_status === '已核准' && parseFloat(loan.daily_penalty) > 0) {
+                             const daysOverdue = Math.floor((new Date(today).getTime() - new Date(value).getTime()) / (1000 * 3600 * 24));
+                             const totalPenalty = daysOverdue * parseFloat(loan.daily_penalty);
+                             displayValue = `${value} <span class="text-red-600 font-bold ml-2">(逾期 ${daysOverdue} 天)</span>`;
+                             penaltyHtml = `<div class="grid grid-cols-3 gap-4 border-b py-3 bg-red-50/50"><p class="col-span-1 font-bold text-red-600">應繳罰金</p><p class="col-span-2 text-red-800 break-words font-bold">NT$ ${totalPenalty.toLocaleString()}</p></div>`;
+                        }
+                         loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${displayValue}</p></div>`;
+                         if (penaltyHtml) loanDetailsContent.innerHTML += penaltyHtml;
+                         continue;
+                    }
+                    if (key === 'daily_penalty') {
+                        displayValue = `NT$ ${parseFloat(value).toLocaleString()} / 天`;
+                    }
+
+                    // 如果是純繳利息，且期數為空，則不顯示期數
+                    if (key === 'loan_term' && loan.loan_mode === 'interest_only' && !value) {
+                         continue;
+                    }
+                    
                     loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3"><p class="col-span-1 font-semibold text-gray-600">${label}</p><p class="col-span-2 text-gray-800 break-words">${displayValue}</p></div>`;
                 }
             }
+            // Add Remaining Principal Display
+            loanDetailsContent.innerHTML += `<div class="grid grid-cols-3 gap-4 border-b py-3 bg-blue-50/50"><p class="col-span-1 font-bold text-blue-600">剩餘本金</p><p class="col-span-2 text-blue-800 break-words font-bold">${`NT$ ${remainingPrincipal.toLocaleString()}`}</p></div>`;
+
+
             renderTransactionSummaryAndHistory(loanId);
             headerSubtitle.textContent = `貸款詳細資料: ${customer.name}`;
             if (showForm) {
@@ -1353,26 +1547,37 @@
             } else {
                 addTransactionForm.classList.add('hidden');
             }
+            
+            // 只有在已核准狀態下才顯示新增交易按鈕
+            showTransactionFormBtn.classList.toggle('hidden', loan.loan_status !== '已核准');
+
             switchView(loanDetailsView, loanTabContent);
         }
         function renderTransactionSummaryAndHistory(loanId) {
             const loan = loans.find(l => l.id == loanId);
             if (!loan) return;
             const transactions = loan.transactions || [];
+            
+            // 排序交易紀錄，最新的在最上面
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
             const totalPrincipalPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
             const totalInterestPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
             const remainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - totalPrincipalPaid;
+
             summaryRemainingPrincipal.textContent = `NT$ ${remainingPrincipal.toLocaleString()}`;
             summaryPrincipalPaid.textContent = `NT$ ${totalPrincipalPaid.toLocaleString()}`;
             summaryInterestPaid.textContent = `NT$ ${totalInterestPaid.toLocaleString()}`;
+            
             transactionHistoryBody.innerHTML = '';
             if (transactions.length === 0) {
                 transactionHistoryBody.innerHTML = `<tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">尚無交易紀錄</td></tr>`;
                 return;
             }
-            transactions.forEach(t => {
+
+            sortedTransactions.forEach(t => {
                 const row = document.createElement('tr');
-                row.innerHTML = `<td class="px-4 py-3 text-sm text-gray-600">${t.date}</td><td class="px-4 py-3 text-sm text-gray-600">${t.principal ? 'NT$ ' + parseInt(t.principal).toLocaleString() : '0'}</td><td class="px-4 py-3 text-sm text-gray-600">${t.interest ? 'NT$ ' + parseInt(t.interest).toLocaleString() : '0'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.notes || ''}</td>`;
+                row.innerHTML = `<td class="px-4 py-3 text-sm text-gray-600">${t.date}</td><td class="px-4 py-3 text-sm text-gray-600">${t.principal && parseFloat(t.principal) > 0 ? 'NT$ ' + parseInt(t.principal).toLocaleString() : '0'}</td><td class="px-4 py-3 text-sm text-gray-600">${t.interest && parseFloat(t.interest) > 0 ? 'NT$ ' + parseInt(t.interest).toLocaleString() : '0'}</td><td class="px-4 py-3 text-sm text-gray-500">${t.notes || ''}</td>`;
                 transactionHistoryBody.appendChild(row);
             });
         }
@@ -1389,9 +1594,30 @@
                 showToast('貸款利率不能為負數。', 'error');
                 return false;
             }
-            if (data.loan_mode === 'amortization' && (!data.loan_term || parseInt(data.loan_term) <= 0)) {
+            const isAmortization = data.loan_mode === 'amortization';
+            const isCalculatingPayment = data.calculation_goal === 'calculate_payment';
+            const isDailyRepayment = data.repayment_cycle === 'day';
+
+            // 只有在計算每期應繳且為攤還模式時才需要期數
+            if (isCalculatingPayment && isAmortization && (!data.loan_term || parseInt(data.loan_term) <= 0)) {
                 showToast('本利攤還模式下，貸款期數必須為正數。', 'error');
                 return false;
+            }
+            // 反推利率模式下必須有期望還款額
+            if (data.calculation_goal === 'calculate_rate' && (parseFloat(data.desired_payment_amount) <= 0 || isNaN(parseFloat(data.desired_payment_amount)))) {
+                 showToast('反推利率模式下，期望每期應繳金額必須為正數。', 'error');
+                 return false;
+            }
+            // 每日還款模式的額外檢查
+            if (isDailyRepayment) {
+                 if (!data.next_payment_date || data.next_payment_date.trim() === '') {
+                     showToast('每日還款模式必須設定「下次還款日」。', 'error');
+                     return false;
+                 }
+                 if (isNaN(parseFloat(data.daily_penalty)) || parseFloat(data.daily_penalty) < 0) {
+                     showToast('每日罰金必須為非負數值。', 'error');
+                     return false;
+                 }
             }
             return true;
         }
@@ -1399,20 +1625,38 @@
             headerSubtitle.textContent = '建立新貸款';
             loanForm.reset();
             document.getElementById('loan_date').value = new Date().toISOString().split('T')[0];
+            
+            // 預設為計算每期應繳
+            document.getElementById('calc_goal_payment').checked = true; 
+            loanInterestRateInput.required = true;
+            loanInterestRateInput.value = '5.0'; // 預設一個值
+            
+            // 預設還款週期為月
+            repaymentCycleSelect.value = 'month';
+
             handleLoanFormLogic();
             populateCustomerDropdown();
             switchView(loanFormView, loanTabContent);
         });
+
+        // 監聽還款週期切換
         repaymentCycleSelect.addEventListener('change', (e) => {
-            repaymentDaysWrapper.classList.toggle('hidden', e.target.value !== 'day');
-            calculateInterestRate();
+            handleLoanFormLogic(); // 更新表單 UI 狀態
+            calculateInterestRate(); // 雖然日模式不直接影響利率計算，但確保邏輯一致性
         });
         loanModeSelect.addEventListener('change', handleLoanFormLogic);
         calcMethodRadios.forEach(radio => radio.addEventListener('change', handleLoanFormLogic));
-        calculationGoalRadios.forEach(radio => radio.addEventListener('change', handleLoanFormLogic));
-        ['loan_apply_amount', 'desired_payment_amount', 'repayment_days', 'loan_interest_period'].forEach(id => {
+        calculationGoalRadios.forEach(radio => radio.addEventListener('change', () => {
+             // 切換目標時清空利率輸入框，強制使用者重新輸入或計算
+             loanInterestRateInput.value = ''; 
+             handleLoanFormLogic();
+        }));
+        // 任何影響利率反推計算的欄位變動
+        ['loan_apply_amount', 'desired_payment_amount', 'loan_interest_period', 'repayment_cycle'].forEach(id => {
             document.getElementById(id).addEventListener('input', calculateInterestRate);
+            document.getElementById(id).addEventListener('change', calculateInterestRate); // Select uses change
         });
+
 
         loanForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1420,23 +1664,35 @@
             const formData = new FormData(e.target);
             const newLoan = Object.fromEntries(formData.entries());
 
-            if (!validateLoanForm(newLoan)) return;
-
+            // 處理數字和布林值
             newLoan.principal_reduction = formData.has('principal_reduction');
             newLoan.transactions = [];
-            
+            newLoan.loan_apply_amount = parseFloat(newLoan.loan_apply_amount) || 0;
+            newLoan.loan_interest_rate = parseFloat(newLoan.loan_interest_rate) || 0;
+            newLoan.loan_term = parseInt(newLoan.loan_term) || null;
+            newLoan.daily_penalty = parseFloat(newLoan.daily_penalty) || 0; // 新增罰金處理
+
+            if (!validateLoanForm(newLoan)) return;
+
             // 根據計算模式決定如何取得 periodic_payment
             if (newLoan.calculation_goal === 'calculate_rate') {
                 newLoan.periodic_payment = parseFloat(newLoan.desired_payment_amount) || 0;
             } else {
                 newLoan.periodic_payment = calculatePeriodicPayment(newLoan);
             }
+
             // 刪除表單專用欄位
             delete newLoan.calculation_goal;
             delete newLoan.desired_payment_amount;
 
+            // 如果不是每日還款，清空 next_payment_date 和 daily_penalty
+            if (newLoan.repayment_cycle !== 'day') {
+                newLoan.next_payment_date = null;
+                newLoan.daily_penalty = 0;
+            }
+
             try {
-                const loanColRef = collection(db, 'users', userId, 'loans');
+                const loanColRef = getLoanCollectionRef(userId);
                 await addDoc(loanColRef, newLoan);
                 showToast('新增貸款成功！', 'success');
                 switchTab('loan');
@@ -1467,7 +1723,7 @@
                 const loanId = e.target.dataset.id;
                 const newStatus = e.target.value;
                 if (!userId || !loanId) return;
-                const loanDocRef = doc(db, 'users', userId, 'loans', loanId);
+                const loanDocRef = doc(getLoanCollectionRef(userId), loanId);
                 try {
                     await updateDoc(loanDocRef, { loan_status: newStatus });
                     showToast('貸款狀態已更新', 'success');
@@ -1503,31 +1759,64 @@
             const loan = loans.find(l => l.id == currentEditingLoanId);
             if (!loan || !userId) return;
 
+            const principal = parseFloat(e.target.transaction_principal.value) || 0;
+            const interest = parseFloat(e.target.transaction_interest.value) || 0;
+
+            if (principal === 0 && interest === 0) {
+                showToast('繳款本金和繳款利息不能同時為零。', 'error');
+                return;
+            }
+
             const newTransaction = {
                 id: Date.now(),
                 date: e.target.transaction_date.value,
-                principal: e.target.transaction_principal.value || '0',
-                interest: e.target.transaction_interest.value || '0',
+                principal: principal.toString(),
+                interest: interest.toString(),
                 notes: e.target.transaction_notes.value
             };
             
             const updatedTransactions = [...(loan.transactions || []), newTransaction];
+            let loanUpdateData = { transactions: updatedTransactions };
             let updatedPeriodicPayment = loan.periodic_payment;
+            let updatedNextPaymentDate = loan.next_payment_date;
 
-            if ((parseFloat(newTransaction.principal) || 0) > 0 && loan.principal_reduction && loan.calc_method === 'pmt') {
-                const totalPrincipalPaid = updatedTransactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
-                const newRemainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - totalPrincipalPaid;
-                const tempLoanDataForCalc = { ...loan, loan_apply_amount: newRemainingPrincipal };
-                updatedPeriodicPayment = calculatePeriodicPayment(tempLoanDataForCalc);
+            const currentTotalPrincipalPaid = updatedTransactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+            const currentRemainingPrincipal = (parseFloat(loan.loan_apply_amount) || 0) - currentTotalPrincipalPaid;
+
+            // 1. 還本降息和清償邏輯
+            if (currentRemainingPrincipal <= 0) {
+                 // 已清償
+                 loanUpdateData.loan_status = '已清償';
+                 loanUpdateData.periodic_payment = 0;
+            } else if (principal > 0 && loan.principal_reduction && loan.calc_method === 'pmt') {
+                // 還本降息
+                const tempLoanDataForCalc = { 
+                    ...loan, 
+                    loan_apply_amount: currentRemainingPrincipal, 
+                    loan_term: loan.loan_term || 120 // 使用一個合理的預設期數來計算，或者允許無限期
+                };
+                updatedPeriodicPayment = calculatePeriodicPayment(tempLoanDataForCalc, currentRemainingPrincipal);
+                loanUpdateData.periodic_payment = updatedPeriodicPayment;
+            } else {
+                loanUpdateData.periodic_payment = updatedPeriodicPayment;
             }
 
+            // 2. 每日還款模式：更新下次還款日
+            if (loan.repayment_cycle === 'day' && loan.next_payment_date) {
+                // 如果是每日繳款模式，下次繳款日向前推進一天
+                const nextDate = new Date(loan.next_payment_date);
+                nextDate.setDate(nextDate.getDate() + 1);
+                updatedNextPaymentDate = nextDate.toISOString().split('T')[0];
+                loanUpdateData.next_payment_date = updatedNextPaymentDate;
+            }
+
+
             try {
-                const loanDocRef = doc(db, 'users', userId, 'loans', currentEditingLoanId);
-                await updateDoc(loanDocRef, {
-                    transactions: updatedTransactions,
-                    periodic_payment: updatedPeriodicPayment
-                });
+                const loanDocRef = doc(getLoanCollectionRef(userId), currentEditingLoanId);
+                await updateDoc(loanDocRef, loanUpdateData);
                 showToast('交易紀錄已新增', 'success');
+                // 成功後重新渲染明細頁面
+                renderLoanDetails(currentEditingLoanId);
             } catch (error) {
                 console.error("新增交易失敗:", error);
                 showToast("新增交易失敗，請稍後再試。", 'error');
@@ -1547,8 +1836,8 @@
             if (!itemToDelete.id || !itemToDelete.type || !userId) return;
 
             const { id, type } = itemToDelete;
-            const collectionName = type === 'customer' ? 'customers' : 'loans';
-            const docRef = doc(db, 'users', userId, collectionName, id);
+            const collectionRef = type === 'customer' ? getCustomerCollectionRef(userId) : getLoanCollectionRef(userId);
+            const docRef = doc(collectionRef, id);
 
             try {
                 await deleteDoc(docRef);
@@ -1616,16 +1905,23 @@
 
         // --- 數據分析邏輯 ---
         function renderAnalyticsCharts() {
+            // 計算總利息收益
+            const totalInterestRevenue = loans.reduce((loanSum, loan) => {
+                const loanInterest = (loan.transactions || []).reduce((txSum, t) => txSum + (parseFloat(t.interest) || 0), 0);
+                return loanSum + loanInterest;
+            }, 0);
+
             // Summary Cards
             const totalLoanAmount = loans.reduce((sum, loan) => sum + (parseFloat(loan.loan_apply_amount) || 0), 0);
             document.getElementById('totalCustomers').textContent = customers.length;
             document.getElementById('totalLoans').textContent = loans.length;
             document.getElementById('totalLoanAmount').textContent = `NT$ ${totalLoanAmount.toLocaleString()}`;
+            totalInterestRevenueElement.textContent = `NT$ ${totalInterestRevenue.toLocaleString()}`; // 更新總利息收益
 
             // Chart 1: Loan Status Distribution
             const statusCtx = document.getElementById('loanStatusChart').getContext('2d');
             const statusCounts = loans.reduce((acc, loan) => {
-                acc[loan.loan_status] = (acc[loan.loan_status] || 0) + 1;
+                acc[loan.loan_status || '未知狀態'] = (acc[loan.loan_status || '未知狀態'] || 0) + 1;
                 return acc;
             }, {});
 
@@ -1638,7 +1934,7 @@
                     labels: Object.keys(statusCounts),
                     datasets: [{
                         data: Object.values(statusCounts),
-                        backgroundColor: ['#FBBF24', '#10B981', '#EF4444', '#3B82F6'],
+                        backgroundColor: ['#FBBF24', '#10B981', '#EF4444', '#3B82F6', '#6B7280'],
                         hoverOffset: 4
                     }]
                 },
@@ -1657,10 +1953,12 @@
             const monthlyData = Array(12).fill(0);
             const currentYear = new Date().getFullYear();
             loans.forEach(loan => {
-                const loanDate = new Date(loan.loan_date);
-                if (loanDate.getFullYear() === currentYear) {
-                    const month = loanDate.getMonth(); // 0-11
-                    monthlyData[month] += parseFloat(loan.loan_apply_amount) || 0;
+                if (loan.loan_date) {
+                    const loanDate = new Date(loan.loan_date);
+                    if (loanDate.getFullYear() === currentYear) {
+                        const month = loanDate.getMonth(); // 0-11
+                        monthlyData[month] += parseFloat(loan.loan_apply_amount) || 0;
+                    }
                 }
             });
 
@@ -1717,6 +2015,7 @@
             });
 
             const csvString = csvRows.join('\n');
+            // '\uFEFF' is the UTF-8 BOM, ensuring correct display in Excel
             const blob = new Blob(['\uFEFF' + csvString], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
@@ -1744,26 +2043,30 @@
         exportLoansBtn.addEventListener('click', () => {
             const dataToExport = loans.map(l => {
                 const customer = customers.find(c => c.id === l.loan_customer_id);
-                const totalPrincipalPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
-                const totalInterestPaid = (l.transactions || []).reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
+                const transactions = l.transactions || [];
+                const totalPrincipalPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.principal) || 0), 0);
+                const totalInterestPaid = transactions.reduce((sum, t) => sum + (parseFloat(t.interest) || 0), 0);
                 const remainingPrincipal = (parseFloat(l.loan_apply_amount) || 0) - totalPrincipalPaid;
+
                 return {
                     '客戶姓名': customer ? customer.name : '未知客戶',
-                    '貸款金額': l.loan_apply_amount || 0,
+                    '貸款金額': parseFloat(l.loan_apply_amount) || 0,
                     '貸款日期': l.loan_date || '',
-                    '貸款利率(%)': l.loan_interest_rate || 0,
+                    '貸款利率(%)': parseFloat(l.loan_interest_rate) || 0,
                     '利率單位': l.loan_interest_period || '',
                     '貸款模式': l.loan_mode === 'amortization' ? '本利攤還' : '純繳利息',
                     '計算公式': l.calc_method === 'simple' ? '簡易利息計算' : '標準PMT公式',
                     '還款週期': l.repayment_cycle || '',
-                    '貸款期數': l.loan_term || 'N/A',
-                    '每期應繳': l.periodic_payment || 0,
+                    '下次還款日': l.next_payment_date || 'N/A', // 日模式專用
+                    '每日罰金': parseFloat(l.daily_penalty) || 0, // 日模式專用
+                    '貸款期數': parseInt(l.loan_term) || 'N/A',
+                    '每期應繳': parseInt(l.periodic_payment) || 0,
                     '還本降息': l.principal_reduction ? '是' : '否',
                     '貸款狀態': l.loan_status || '',
                     '剩餘本金': remainingPrincipal,
                     '已繳本金': totalPrincipalPaid,
                     '已繳利息': totalInterestPaid,
-                    '交易筆數': (l.transactions || []).length,
+                    '交易筆數': transactions.length,
                     '備註': l.loan_notes || ''
                 };
             });
