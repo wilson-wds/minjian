@@ -189,6 +189,9 @@
                     <input type="password" id="login-password" autocomplete="current-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                 </div>
                 <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200 disabled:bg-blue-400">登入</button>
+                <div class="text-right mt-2">
+                    <a href="#" id="forgot-password-link" class="text-sm text-blue-600 hover:text-blue-800">忘記密碼？</a>
+                </div>
             </form>
 
             <!-- 註冊表單 (預設隱藏) -->
@@ -202,6 +205,19 @@
                     <input type="password" id="register-password" autocomplete="new-password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                 </div>
                 <button type="submit" id="register-btn" class="w-full bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200 disabled:bg-green-400">註冊新帳號</button>
+            </form>
+            
+            <!-- 忘記密碼表單 (新增) -->
+            <form id="forgot-password-form" class="hidden space-y-4 text-left">
+                <p class="text-sm text-gray-600">請輸入您註冊的電子信箱，我們將會寄送密碼重設信件給您。</p>
+                <div>
+                    <label for="forgot-email" class="block text-sm font-medium text-gray-700">電子信箱</label>
+                    <input type="email" id="forgot-email" autocomplete="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                </div>
+                <button type="submit" id="forgot-btn" class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition duration-200 disabled:bg-orange-300">寄送重設信件</button>
+                <div class="text-right mt-2">
+                    <a href="#" id="back-to-login-link" class="text-sm text-blue-600 hover:text-blue-800">返回登入</a>
+                </div>
             </form>
             
             <div id="loader" class="loader mx-auto my-4 hidden"></div>
@@ -633,7 +649,7 @@
     <script type="module">
         // 引入 Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signInAnonymously, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase 設定 (請務必從您的 Firebase 控制台複製完整設定) ---
@@ -763,6 +779,9 @@
         const calcMethodRadios = document.querySelectorAll('input[name="calc_method"]');
         const loginTabBtn = document.getElementById('login-tab-btn'), registerTabBtn = document.getElementById('register-tab-btn');
         const loginForm = document.getElementById('login-form'), registerForm = document.getElementById('register-form');
+        const forgotPasswordForm = document.getElementById('forgot-password-form'); // 新增
+        const forgotPasswordLink = document.getElementById('forgot-password-link'); // 新增
+        const backToLoginLink = document.getElementById('back-to-login-link'); // 新增
         const userListTableBody = document.getElementById('user-list-table-body');
         const adminSettingsSection = document.getElementById('admin-settings-section');
         const marqueeForm = document.getElementById('marquee-form');
@@ -862,6 +881,7 @@
             registerTabBtn.classList.remove('active');
             loginForm.classList.remove('hidden');
             registerForm.classList.add('hidden');
+            forgotPasswordForm.classList.add('hidden'); // 確保忘記密碼表單隱藏
             authStatus.textContent = '';
         });
 
@@ -870,6 +890,29 @@
             loginTabBtn.classList.remove('active');
             registerForm.classList.remove('hidden');
             loginForm.classList.add('hidden');
+            forgotPasswordForm.classList.add('hidden'); // 確保忘記密碼表單隱藏
+            authStatus.textContent = '';
+        });
+
+        // --- 新增：切換至忘記密碼表單 ---
+        forgotPasswordLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            forgotPasswordForm.classList.remove('hidden');
+            loginTabBtn.classList.remove('active');
+            registerTabBtn.classList.remove('active');
+            authStatus.textContent = '';
+        });
+
+        // --- 新增：從忘記密碼返回登入 ---
+        backToLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            forgotPasswordForm.classList.add('hidden');
+            loginTabBtn.classList.add('active');
+            registerTabBtn.classList.remove('active');
             authStatus.textContent = '';
         });
 
@@ -889,6 +932,41 @@
             }
         });
         
+        // --- 新增：忘記密碼表單提交 ---
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loader.classList.remove('hidden');
+            authStatus.textContent = '';
+            const email = e.target['forgot-email'].value;
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                authStatus.textContent = '密碼重設信件已寄出，請檢查您的信箱。';
+                authStatus.classList.remove('text-red-500');
+                authStatus.classList.add('text-green-600');
+                
+                // 延遲後跳回登入畫面
+                setTimeout(() => {
+                    loginForm.classList.remove('hidden');
+                    forgotPasswordForm.classList.add('hidden');
+                    loginTabBtn.classList.add('active');
+                    authStatus.textContent = ''; // 清空狀態
+                    authStatus.classList.remove('text-green-600');
+                    authStatus.classList.add('text-red-500');
+                }, 3000);
+
+            } catch (error) {
+                console.error("密碼重設失敗:", error.code);
+                if (error.code === 'auth/user-not-found') {
+                    authStatus.textContent = '查無此電子信箱，請確認輸入是否正確。';
+                } else {
+                    authStatus.textContent = `請求失敗：${error.message}`;
+                }
+            } finally {
+                loader.classList.add('hidden');
+            }
+        });
+
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             loader.classList.remove('hidden');
