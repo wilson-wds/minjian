@@ -636,16 +636,32 @@
         import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, setDoc, getDoc, query, serverTimestamp, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase 設定與初始化 ---
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
+        // --- Firebase 設定 (請務必從您的 Firebase 控制台複製完整設定) ---
+        // **重要**：請將此處改為您自己的 Firebase 專案設定
+        const firebaseConfig = {
+          apiKey: "AIzaSyBPnQoKjcWFPSin1zo_xn83WZ5CIOV4Waw", // 這是範例，請使用您自己的
+          authDomain: "minjian.firebaseapp.com", // 這是範例，請使用您自己的
+          projectId: "minjian", // 這是範例，請使用您自己的
+          storageBucket: "minjian.appspot.com", // 這是範例，請使用您自己的
+          messagingSenderId: "44357085928", // 這是範例，請使用您自己的
+          appId: "1:44357085928:web:PASTE_YOUR_FULL_APP_ID_HERE" // **重要**：請從 Firebase 控制台複製完整的 App ID 貼到此處
+        };
+        
+        // --- Canvas 環境專用的變數 (已移除) ---
+        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        // --- 初始化 Firebase ---
+        // **重要**：appId 必須是您專案的唯一ID，這裡使用 'default-app-id' 作為範例
+        // 如果您在多個地方使用此系統，請確保 'appId' 變數是唯一的，或者使用您自己的邏輯
+        const appId = 'default-app-id'; 
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // 嘗試使用提供的 token 登入，或使用匿名登入
+        // --- 移除 Canvas 環境專用的自動登入 ---
+        /*
         async function authenticate() {
             try {
                 if (initialAuthToken) {
@@ -665,6 +681,7 @@
             }
         }
         authenticate();
+        */
 
         // --- Firebase Collection/Doc References (使用專屬路徑) ---
         function getCustomerCollectionRef(uid) {
