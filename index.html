@@ -670,7 +670,7 @@
         // --- 初始化 Firebase ---
         // **重要**：appId 必須是您專案的唯一ID，這裡使用 'default-app-id' 作為範例
         // 如果您在多個地方使用此系統，請確保 'appId' 變數是唯一的，或者使用您自己的邏輯
-        const appId = 'default-app-id'; 
+        // const appId = 'default-app-id'; // 移除此行，此變數已不再需要
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -699,28 +699,34 @@
         authenticate();
         */
 
-        // --- Firebase Collection/Doc References (使用專屬路徑) ---
+        // --- Firebase Collection/Doc References (使用簡化後的新路徑) ---
         function getCustomerCollectionRef(uid) {
-            return collection(db, 'artifacts', appId, 'users', uid, 'customers');
+            // 私人資料
+            return collection(db, 'users', uid, 'customers');
         }
         function getLoanCollectionRef(uid) {
-            return collection(db, 'artifacts', appId, 'users', uid, 'loans');
+            // 私人資料
+            return collection(db, 'users', uid, 'loans');
         }
         function getSettingsDocRef(uid) {
-            // 用於儲存公司名稱等使用者專屬設定
-            return doc(db, 'artifacts', appId, 'users', uid, 'settings_data'); 
+            // 私人資料
+            return doc(db, 'users', uid, 'settings'); 
         }
         function getAllUsersCollectionRef() {
-            // 管理員專用，儲存所有用戶權限 (必須使用 public 路徑)
-            return collection(db, 'artifacts', appId, 'public', 'data', 'all_users');
+            // 公共資料 (for user management)
+            return collection(db, 'public_data', 'all_users');
+        }
+        function getUserDocRef(uid) {
+            // 公共資料 (for user management)
+            return doc(db, 'public_data', 'all_users', uid);
         }
         function getGlobalMarqueeDocRef() {
-            // 全域公告，使用公共路徑
-            return doc(db, 'artifacts', appId, 'public', 'data', 'globals', 'marquee');
+            // 公共資料 (globals)
+            return doc(db, 'public_data', 'globals', 'marquee');
         }
         function getGlobalAnnouncementDocRef() {
-            // 全域公告，使用公共路徑
-            return doc(db, 'artifacts', appId, 'public', 'data', 'globals', 'announcement');
+            // 公共資料 (globals)
+            return doc(db, 'public_data', 'globals', 'announcement');
         }
 
 
@@ -821,8 +827,8 @@
 
             if (user) {
                 userId = user.uid;
-                // 修正權限：讀取 user doc 必須使用 public 路徑
-                const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'all_users', userId);
+                // 修正權限：使用新的 helper 函數讀取 user doc
+                const userDocRef = getUserDocRef(userId);
                 const userDocSnap = await getDoc(userDocRef);
 
                 // 權限檢查
@@ -986,8 +992,8 @@
                 const day = String(tomorrow.getDate()).padStart(2, '0');
                 const defaultEndDate = `${year}-${month}-${day}`;
 
-                // 修正權限：在 all_users 集合中建立使用者資料 (必須使用 public 路徑)
-                const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'all_users', user.uid);
+                // 修正權限：在 all_users 集合中建立使用者資料 (使用新的 helper 函數)
+                const userDocRef = getUserDocRef(user.uid);
                 await setDoc(userDocRef, {
                     email: user.email,
                     uid: user.uid,
@@ -1990,7 +1996,9 @@
 
                 const userDocRef = doc(db, 'all_users', userIdToUpdate);
                 try {
-                    await updateDoc(userDocRef, { accessEndDate: newEndDate });
+                    // 修正路徑：使用 'public_data'
+                    const userDocRefToUpdate = getUserDocRef(userIdToUpdate);
+                    await updateDoc(userDocRefToUpdate, { accessEndDate: newEndDate });
                     showToast(`使用者 ${userEmail} 的權限已更新。`, 'success');
                 } catch (error) {
                     console.error("更新權限失敗:", error);
