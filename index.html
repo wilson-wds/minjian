@@ -374,7 +374,7 @@
                                         <label class="block text-sm font-medium text-gray-600 mb-2">計算目標</label>
                                         <div class="flex items-center space-x-6">
                                             <label for="calc_goal_payment" class="flex items-center cursor-pointer"><input type="radio" id="calc_goal_payment" name="calculation_goal" value="calculate_payment" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked><span class="ml-2 text-sm text-gray-700">計算每期應繳</span></label>
-                                            <label for="calc_goal_rate" class="flex items-center cursor-pointer"><input type="radio" id="calc_goal_rate" name="calculation_goal" value="calculate_rate" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"><span class="ml-2 text-sm text-gray-700">反推貸款利率</span></label>
+                                            <label for="calc_goal_rate" class="flex items-center cursor-pointer"><input type="radio" id="calc_goal_rate" name="calculation_goal" value="calculate_rate" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-2 text-sm text-gray-700">反推貸款利率</span></label>
                                         </div>
                                     </div>
 
@@ -419,7 +419,7 @@
                                     <!-- 還款週期/日期/罰金設定 END -->
 
                                     <div id="loan_term_wrapper"><label for="loan_term" class="block text-sm font-medium text-gray-600 mb-1">貸款期數</label><input type="number" id="loan_term" name="loan_term" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-200 disabled:cursor-not-allowed" placeholder="總共要還幾期"></div>
-                                    <div id="calculation_method_wrapper"><label class="block text-sm font-medium text-gray-600 mb-2">計算公式</label><div class="flex items-center space-x-4"><label for="calc_method_pmt" class="flex items-center"><input type="radio" id="calc_method_pmt" name="calc_method" value="pmt" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked><span class="ml-2 text-sm text-gray-700">標準PMT公式</span></label><label for="calc_method_simple" class="flex items-center"><input type="radio" id="calc_method_simple" name="calc_method" value="simple" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"><span class="ml-2 text-sm text-gray-700">簡易利息計算</span></label></div></div>
+                                    <div id="calculation_method_wrapper"><label class="block text-sm font-medium text-gray-600 mb-2">計算公式</label><div class="flex items-center space-x-4"><label for="calc_method_pmt" class="flex items-center"><input type="radio" id="calc_method_pmt" name="calc_method" value="pmt" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked><span class="ml-2 text-sm text-gray-700">標準PMT公式</span></label><label for="calc_method_simple" class="flex items-center"><input type="radio" id="calc_method_simple" name="calc_method" value="simple" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"><span class="ml-2 text-sm text-gray-700">簡易利息計算</span></label></div></div>
                                     <div><label for="loan_status" class="block text-sm font-medium text-gray-600 mb-1">貸款狀態</label><select id="loan_status" name="loan_status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="審核中">審核中</option><option value="已核准">已核准</option><option value="已駁回">已駁回</option><option value="已清償">已清償</option></select></div>
                                     <div class="md:col-span-2 flex items-center pt-2"><input id="principal_reduction" name="principal_reduction" type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"><label for="principal_reduction" class="ml-2 block text-sm text-gray-900">是否還本降息</label></div>
                                     <div class="md:col-span-2"><label for="loan_notes" class="block text-sm font-medium text-gray-600 mb-1">備註</label><textarea id="loan_notes" name="loan_notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="可在此輸入關於此筆貸款的備註事項"></textarea></div>
@@ -678,8 +678,8 @@
             return doc(db, 'artifacts', appId, 'users', uid, 'settings_data'); 
         }
         function getAllUsersCollectionRef() {
-            // 管理員專用，儲存所有用戶權限
-            return collection(db, 'all_users'); 
+            // 管理員專用，儲存所有用戶權限 (必須使用 public 路徑)
+            return collection(db, 'artifacts', appId, 'public', 'data', 'all_users');
         }
         function getGlobalMarqueeDocRef() {
             // 全域公告，使用公共路徑
@@ -785,7 +785,8 @@
 
             if (user) {
                 userId = user.uid;
-                const userDocRef = doc(db, 'all_users', userId);
+                // 修正權限：讀取 user doc 必須使用 public 路徑
+                const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'all_users', userId);
                 const userDocSnap = await getDoc(userDocRef);
 
                 // 權限檢查
@@ -890,8 +891,8 @@
                 const day = String(tomorrow.getDate()).padStart(2, '0');
                 const defaultEndDate = `${year}-${month}-${day}`;
 
-                // 在 all_users 集合中建立使用者資料
-                const userDocRef = doc(db, 'all_users', user.uid);
+                // 修正權限：在 all_users 集合中建立使用者資料 (必須使用 public 路徑)
+                const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'all_users', user.uid);
                 await setDoc(userDocRef, {
                     email: user.email,
                     uid: user.uid,
